@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  OWNER
+  BROKER
+  USER
+}
+
+model User {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  email     String       @unique
+  name      String
+  password  String
+  number    String
+  role      Role         @default(USER)
+  // 
+  reviews   RoomReview[] @relation("RoomReviews")
+  // 
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("Users")
+}
+
+enum RoomTypeEnum {
+  FLAT
+  ONE_BHK
+  TWO_BHK
+}
+
+enum FurnishingStatusEnum {
+  UNFURNISHED
+  SEMIFURNISHED
+  FURNISHED
+}
+
+enum Aminities {
+  PARKING
+  WIFI
+}
+
+model RoomForRent {
+  id               String               @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  city             String
+  location         String // Location of Room
+  photos           String[] // Array of photo URLs/paths
+  videos           String? // video URLs/paths
+  price            Float // Price of Room
+  ratings          Float                @default(0)
+  mincapacity      Int // Constraint to ensure valid capacity
+  maxcapacity      Int // Maximum number of people allowed
+  verified         Boolean
+  // 
+  roomtype         RoomTypeEnum
+  furnishingStatus FurnishingStatusEnum
+  aminities        Aminities[]
+  // 
+  reviews          RoomReview[]         @relation("RoomReviews")
+  // 
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  @@map("Rooms_For_Rent")
+}
+
+model RoomReview {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  rating        Float
+  comment       String
+  // 
+  roomForRent   RoomForRent @relation(fields: [roomForRentId], references: [id], name: "RoomReviews")
+  roomForRentId String      @db.ObjectId
+  // 
+  user          User        @relation(fields: [userId], references: [id], name: "RoomReviews")
+  userId        String      @db.ObjectId
+  // 
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // @@index([userId])
+  // @@index([roomForRentId])
+  @@map("Rooms_Review")
+}
