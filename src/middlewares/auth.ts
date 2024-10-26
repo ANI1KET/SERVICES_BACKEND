@@ -3,7 +3,7 @@ import * as jwt from "jsonwebtoken";
 import { Request, NextFunction, Response } from "express";
 import { UnauthorizedException } from "../exceptions/unauthorized";
 import { ErrorCode } from "../exceptions/errorhandler";
-import { JWT_SECRET } from "../env_variable";
+import { ACCESS_JWT_SECRET, REFRESH_JWT_SECRET } from "../env_variable";
 import { prismaClient } from "../server";
 
 const authMiddleware = async (
@@ -20,17 +20,18 @@ const authMiddleware = async (
   }
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as any;
+    const payload = jwt.verify(token, ACCESS_JWT_SECRET) as any;
 
     const user = await prismaClient.user.findFirst({
       where: { id: payload.userId },
     });
+
     if (!user)
       return next(
         new UnauthorizedException("Unauthorized Excess", ErrorCode.UNAUTHORIZED)
       );
 
-    req.user = user!;
+    req.user = user;
     next();
   } catch (error) {
     next(

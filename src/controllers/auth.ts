@@ -3,7 +3,7 @@ import { hashSync, compareSync } from "bcrypt";
 import * as jwt from "jsonwebtoken";
 
 import { prismaClient } from "../server";
-import { JWT_SECRET } from "../env_variable";
+import { REFRESH_JWT_SECRET, ACCESS_JWT_SECRET } from "../env_variable";
 import { BadRequestsException } from "../exceptions/bad_requests";
 import { ErrorCode } from "../exceptions/errorhandler";
 import { LoginSchema, SignupSchema } from "../schemas/uers";
@@ -14,9 +14,9 @@ export const signUp = async (
   res: Response,
   next: NextFunction
 ) => {
-  // try {
   SignupSchema.parse(req.body);
-  const { email, name, password, number } = req.body;
+
+  const { email, name, password, number, role } = req.body;
 
   let user = await prismaClient.user.findFirst({ where: { email } });
 
@@ -32,19 +32,11 @@ export const signUp = async (
       name,
       email,
       password: hashSync(password, 10),
+      role,
     },
   });
 
   res.status(201).json(user);
-  //   } catch (error: any) {
-  //     return next(
-  //       new UnprocessableEntity(
-  //         error?.issues,
-  //         "Unprocessable Entity",
-  //         ErrorCode.UNPROCESSABLE_ENTITY
-  //       )
-  //     );
-  //   }
 };
 
 export const login = async (
@@ -53,6 +45,7 @@ export const login = async (
   next: NextFunction
 ) => {
   LoginSchema.parse(req.body);
+
   const { email, password } = req.body;
 
   let user = await prismaClient.user.findFirst({ where: { email } });
@@ -69,15 +62,30 @@ export const login = async (
       ErrorCode.INCORRECT_EMAIL_PASSWORD
     );
 
-  const token = jwt.sign(
+  const accessToken = jwt.sign(
     {
       userId: user.id,
     },
-    JWT_SECRET,
-    { expiresIn: "1d" }
+    ACCESS_JWT_SECRET,
+    { expiresIn: "1h" }
   );
 
-  res.status(201).json({ user, token });
+  const RefreshToken = jwt.sign(
+    {
+      userId: user.id,
+    },
+    REFRESH_JWT_SECRET,
+    { expiresIn: "1h" }
+  );
+
+  // res.cookie("token", RefreshToken, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production", // Set to true in production to ensure secure cookies
+  //   maxAge: 3 * 24 * 60 * 60 * 1000, // 1 day in milliseconds
+  //   sameSite: "strict",
+  // });
+
+  res.status(201).json({ user, accessToken });
 };
 
 export const me = async (req: Request, res: Response, next: NextFunction) => {
