@@ -1,5 +1,5 @@
 import { Request, NextFunction, Response } from "express";
-import { prismaClient } from "../server";
+import { prismaClient } from "../app";
 import { BadRequestsException } from "../exceptions/bad_requests";
 import { ErrorCode } from "../exceptions/errorhandler";
 import { ReviewSchema } from "../schemas/room";

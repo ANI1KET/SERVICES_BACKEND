@@ -2,8 +2,11 @@ import { Request, NextFunction, Response } from "express";
 import { hashSync, compareSync } from "bcrypt";
 import * as jwt from "jsonwebtoken";
 
-import { prismaClient } from "../server";
-import { REFRESH_JWT_SECRET, ACCESS_JWT_SECRET } from "../env_variable";
+import { prismaClient } from "../app";
+import {
+  REFRESH_TOKEN_JWT_SECRET,
+  ACCESS_TOKEN_JWT_SECRET,
+} from "../env_variable";
 import { BadRequestsException } from "../exceptions/bad_requests";
 import { ErrorCode } from "../exceptions/errorhandler";
 import { LoginSchema, SignupSchema } from "../schemas/uers";
@@ -66,24 +69,23 @@ export const login = async (
     {
       userId: user.id,
     },
-    ACCESS_JWT_SECRET,
-    { expiresIn: "1h" }
+    ACCESS_TOKEN_JWT_SECRET
   );
 
   const RefreshToken = jwt.sign(
     {
       userId: user.id,
     },
-    REFRESH_JWT_SECRET,
-    { expiresIn: "1h" }
+    REFRESH_TOKEN_JWT_SECRET,
+    { expiresIn: "1d" }
   );
 
-  // res.cookie("token", RefreshToken, {
-  //   httpOnly: true,
-  //   secure: process.env.NODE_ENV === "production", // Set to true in production to ensure secure cookies
-  //   maxAge: 3 * 24 * 60 * 60 * 1000, // 1 day in milliseconds
-  //   sameSite: "strict",
-  // });
+  res.cookie("refreshToken", RefreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Set to true in production to ensure secure cookies
+    maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+    sameSite: "strict",
+  });
 
   res.status(201).json({ user, accessToken });
 };
