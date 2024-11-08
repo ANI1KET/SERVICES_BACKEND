@@ -46,29 +46,29 @@ export const createRoom = async (
     aminities,
   } = req.body;
 
-  // Create the room in the database
-  const newRoom = await prismaClient.roomForRent.create({
-    data: {
-      name,
-      city,
-      location,
-      photos,
-      videos,
-      price,
-      mincapacity,
-      maxcapacity,
-      roomtype,
-      verified,
-      furnishingStatus,
-      aminities,
-    },
-  });
+  // // Create the room in the database
+  // const newRoom = await prismaClient.roomForRent.create({
+  //   data: {
+  //     name,
+  //     city,
+  //     location,
+  //     photos,
+  //     videos,
+  //     price,
+  //     mincapacity,
+  //     maxcapacity,
+  //     roomtype,
+  //     verified,
+  //     furnishingStatus,
+  //     aminities,
+  //   },
+  // });
 
   // Respond with the created room data
-  res.status(201).json({
-    success: true,
-    data: newRoom,
-  });
+  // res.status(201).json({
+  //   success: true,
+  //   data: newRoom,
+  // });
 };
 
 export const bookRoom = async (

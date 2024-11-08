@@ -3,10 +3,7 @@ import { hashSync, compareSync } from "bcrypt";
 import * as jwt from "jsonwebtoken";
 
 import { prismaClient } from "../app";
-import {
-  REFRESH_TOKEN_JWT_SECRET,
-  ACCESS_TOKEN_JWT_SECRET,
-} from "../env_variable";
+import { JWT_TOKEN_SECRET } from "../env_variable";
 import { BadRequestsException } from "../exceptions/bad_requests";
 import { ErrorCode } from "../exceptions/errorhandler";
 import { LoginSchema, SignupSchema } from "../schemas/uers";
@@ -42,54 +39,28 @@ export const signUp = async (
   res.status(201).json(user);
 };
 
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  LoginSchema.parse(req.body);
+// export const login = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   LoginSchema.parse(req.body);
 
-  const { email, password } = req.body;
+//   const { email, password } = req.body;
 
-  let user = await prismaClient.user.findFirst({ where: { email } });
+//   let user = await prismaClient.user.findFirst({ where: { email } });
 
-  if (!user)
-    throw new NotFoundException(
-      "User does not exist",
-      ErrorCode.USER_NOT_FOUND
-    );
+//   if (!user)
+//     throw new NotFoundException(
+//       "User does not exist",
+//       ErrorCode.USER_NOT_FOUND
+//     );
 
-  if (!compareSync(password, user.password))
-    throw new NotFoundException(
-      "Incorrect email or password",
-      ErrorCode.INCORRECT_EMAIL_PASSWORD
-    );
+//   if (!compareSync(password, user.password))
+//     throw new NotFoundException(
+//       "Incorrect email or password",
+//       ErrorCode.INCORRECT_EMAIL_PASSWORD
+//     );
 
-  const accessToken = jwt.sign(
-    {
-      userId: user.id,
-    },
-    ACCESS_TOKEN_JWT_SECRET
-  );
-
-  const RefreshToken = jwt.sign(
-    {
-      userId: user.id,
-    },
-    REFRESH_TOKEN_JWT_SECRET,
-    { expiresIn: "1d" }
-  );
-
-  res.cookie("refreshToken", RefreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Set to true in production to ensure secure cookies
-    maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
-    sameSite: "strict",
-  });
-
-  res.status(201).json({ user, accessToken });
-};
-
-export const me = async (req: Request, res: Response, next: NextFunction) => {
-  res.status(200).json(req.user);
-};
+//   res.status(201).json({ user, accessToken });
+// };

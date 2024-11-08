@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { signUp, login, me } from "../controllers/auth";
+import { signUp } from "../controllers/auth";
 import { errorHandler } from "../utils/error_handler";
 // import authMiddleware from "../middlewares/auth";
 // import adminMiddleware from "../middlewares/admin";
@@ -8,7 +8,7 @@ import { errorHandler } from "../utils/error_handler";
 const authRoutes: Router = Router();
 
 authRoutes.post("/signup", errorHandler(signUp));
-authRoutes.post("/login", errorHandler(login));
+// authRoutes.post("/login", errorHandler(login));
 // authRoutes.get("/me", [authMiddleware], errorHandler(me));
 // authRoutes.get("/me", [authMiddleware, adminMiddleware], errorHandler(me));
 

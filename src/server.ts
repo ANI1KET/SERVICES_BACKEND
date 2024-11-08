@@ -131,7 +131,7 @@ import { Server } from "http"; // Import Server type
 import cluster from "cluster";
 import os from "os";
 
-import { setupGracefulShutdown } from "./shutdownHandler"; // Import the shutdown handler
+import { setupGracefulShutdown } from "./utils/shutdownHandler"; // Import the shutdown handler
 import { PORT } from "./env_variable";
 import app from "./app";
 
@@ -193,7 +193,8 @@ if (cluster.isPrimary) {
   const numCPUs = os.cpus().length;
 
   // Fork workers for each CPU core
-  for (let i = 0; i < numCPUs; i++) {
+  // for (let i = 0; i < numCPUs; i++) {
+  for (let i = 0; i < 1; i++) {
     cluster.fork();
   }
 
