@@ -15,27 +15,28 @@ datasource db {
 
 enum Role {
   ADMIN
+  ClIENT
   OWNER
   BROKER
   USER
 }
 
 model User {
-  id           String        @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  email        String        @unique
-  image        String?
-  number       String?       @unique
-  password     String?
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String       @unique
+  image     String?
+  number    String?      @unique
+  password  String?
   // ENUM
-  role         Role          @default(USER)
+  role      Role         @default(USER)
   // RELATIONSHIP
-  reviews      RoomReview[]  @relation("RoomReviews")
+  reviews   RoomReview[] @relation("RoomReviews")
   // RELATIONSHIP
-  roomsForRent RoomForRent[] @relation("UserRooms")
+  rooms     Room[]       @relation("UserRooms")
   // 
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
   @@map("Users")
 }
@@ -57,13 +58,13 @@ enum Aminities {
   WIFI
 }
 
-model RoomForRent {
+model Room {
   id               String               @id @default(auto()) @map("_id") @db.ObjectId
   name             String
   city             String
-  direction        String
+  direction        String?
   location         String // Location of Room
-  postedBy         String
+  postedBy         Role                 @default(USER)
   photos           String[] // Array of photo URLs/paths
   videos           String? // video URLs/paths
   price            Float // Price of Room
@@ -74,7 +75,7 @@ model RoomForRent {
   // ENUM
   roomtype         RoomTypeEnum
   furnishingStatus FurnishingStatusEnum
-  aminities        Aminities[]
+  aminities        Aminities[]          @default([])
   // RELATIONSHIP
   reviews          RoomReview[]         @relation("RoomReviews")
   // RELATIONSHIP
@@ -85,22 +86,22 @@ model RoomForRent {
   updatedAt        DateTime             @updatedAt
 
   @@index([userId])
-  @@map("Rooms_For_Rent")
+  @@map("Rooms")
 }
 
 model RoomReview {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  rating        Float
-  comment       String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Float
+  comment   String
   // RELATIONSHIP 
-  roomForRent   RoomForRent @relation(fields: [roomForRentId], references: [id], name: "RoomReviews")
-  roomForRentId String      @db.ObjectId
+  room      Room     @relation(fields: [roomId], references: [id], name: "RoomReviews")
+  roomId    String   @db.ObjectId
   // RELATIONSHIP 
-  user          User        @relation(fields: [userId], references: [id], name: "RoomReviews")
-  userId        String      @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], name: "RoomReviews")
+  userId    String   @db.ObjectId
   // 
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // @@index([userId])
   // @@index([roomForRentId])

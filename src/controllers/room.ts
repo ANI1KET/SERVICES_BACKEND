@@ -29,8 +29,6 @@ export const createRoom = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req.body);
-
   const {
     name,
     city,
@@ -41,34 +39,32 @@ export const createRoom = async (
     mincapacity,
     maxcapacity,
     roomtype,
-    verified,
     furnishingStatus,
-    aminities,
+    userId,
   } = req.body;
 
-  // // Create the room in the database
-  // const newRoom = await prismaClient.roomForRent.create({
-  //   data: {
-  //     name,
-  //     city,
-  //     location,
-  //     photos,
-  //     videos,
-  //     price,
-  //     mincapacity,
-  //     maxcapacity,
-  //     roomtype,
-  //     verified,
-  //     furnishingStatus,
-  //     aminities,
-  //   },
-  // });
+  // Create the room in the database
+  const newRoom = await prismaClient.room.create({
+    data: {
+      name,
+      city,
+      location,
+      photos,
+      videos,
+      price,
+      mincapacity,
+      maxcapacity,
+      roomtype,
+      furnishingStatus,
+      userId,
+    },
+  });
 
   // Respond with the created room data
-  // res.status(201).json({
-  //   success: true,
-  //   data: newRoom,
-  // });
+  res.status(201).json({
+    success: true,
+    data: newRoom,
+  });
 };
 
 export const bookRoom = async (
@@ -87,7 +83,7 @@ export const reviewRoom = async (
 ) => {
   ReviewSchema.parse(req.body);
 
-  const { rating, comment, roomForRentId, userId } = req.body;
+  const { rating, comment, roomId, userId } = req.body;
 
   const newReview = await prismaClient.$transaction(async (prisma) => {
     // Step 1: Create a new review
@@ -96,20 +92,20 @@ export const reviewRoom = async (
         rating,
         comment,
         user: { connect: { id: userId } },
-        roomForRent: { connect: { id: roomForRentId } },
+        room: { connect: { id: roomId } },
       },
     });
 
     // Step 2: Calculate the new average rating for the room
     const { _avg } = await prisma.roomReview.aggregate({
-      where: { roomForRentId },
+      where: { roomId },
       _avg: { rating: true },
     });
 
     // Step 3: Update the `ratings` field in the `RoomForRent` model
     if (_avg.rating !== null) {
-      await prisma.roomForRent.update({
-        where: { id: roomForRentId },
+      await prisma.room.update({
+        where: { id: roomId },
         data: { ratings: _avg.rating }, // Set the average rating
       });
     }
@@ -139,3 +135,8 @@ export const deleteRoom = async (
   //   const { roomId } = req.params;
   console.log(req.params);
 };
+
+// "sir i have recevied total bill payment of 6,50,000 as of now so my pending bill should have been 4,13,125 but you are telling it's 5,63,125.
+// I kindly request you to please look into this matter
+// i have attached the bill receipt for 6,50,000"
+// make it a formal and respectful mail to tell a accountent of college ???
