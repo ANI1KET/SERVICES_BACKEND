@@ -4,7 +4,7 @@ import { BadRequestsException } from "../exceptions/bad_requests";
 import { ErrorCode } from "../exceptions/errorhandler";
 import { ReviewSchema } from "../schemas/room";
 
-// GET
+/* ------------------------------------------GET---------------------------------------- */
 export const allRoomDetails = async (
   req: Request,
   res: Response,
@@ -23,7 +23,7 @@ export const roomDetails = async (
   console.log(req.params);
 };
 
-// POST
+/* -----------------------------------------POST---------------------------------------- */
 export const createRoom = async (
   req: Request,
   res: Response,
@@ -116,7 +116,7 @@ export const reviewRoom = async (
   res.status(201).json(newReview);
 };
 
-// PUT
+/* ------------------------------------------PUT----------------------------------------- */
 export const updateRoomDetails = async (
   req: Request,
   res: Response,
@@ -126,7 +126,7 @@ export const updateRoomDetails = async (
   console.log(req.params);
 };
 
-// DELETE
+/* ----------------------------------------DELETE-----------------------------------------*/
 export const deleteRoom = async (
   req: Request,
   res: Response,
@@ -135,8 +135,3 @@ export const deleteRoom = async (
   //   const { roomId } = req.params;
   console.log(req.params);
 };
-
-// "sir i have recevied total bill payment of 6,50,000 as of now so my pending bill should have been 4,13,125 but you are telling it's 5,63,125.
-// I kindly request you to please look into this matter
-// i have attached the bill receipt for 6,50,000"
-// make it a formal and respectful mail to tell a accountent of college ???

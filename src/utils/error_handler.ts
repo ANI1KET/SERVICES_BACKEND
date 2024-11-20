@@ -15,14 +15,15 @@ export const errorHandler = (func: Function) => {
         exception = new BadRequestsException(
           "Unprocessable Entity",
           ErrorCode.UNPROCESSABLE_ENTITY,
-          error
+          error.errors[0].message
         );
-      else
+      else {
         exception = new InternalException(
           "Something went wrong!",
-          error,
+          error.message,
           ErrorCode.INTERNAL_EXCEPTION
         );
+      }
       next(exception);
     }
   };
