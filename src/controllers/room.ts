@@ -32,6 +32,7 @@ export const createRoom = async (
   const {
     name,
     city,
+    roomNumber,
     location,
     photos,
     videos,
@@ -48,6 +49,7 @@ export const createRoom = async (
     data: {
       name,
       city,
+      roomNumber,
       location,
       photos,
       videos,

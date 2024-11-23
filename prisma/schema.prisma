@@ -22,21 +22,23 @@ enum Role {
 }
 
 model User {
-  id        String       @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String       @unique
-  image     String?
-  number    String?      @unique
-  password  String?
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String        @unique
+  image        String?
+  number       String?       @unique
+  password     String?
   // ENUM
-  role      Role         @default(USER)
+  role         Role          @default(USER)
   // RELATIONSHIP
-  reviews   RoomReview[] @relation("RoomReviews")
+  rooms        Room[]        @relation("UserRooms")
+  roomReviews  RoomReview[]  @relation("RoomReviews")
   // RELATIONSHIP
-  rooms     Room[]       @relation("UserRooms")
+  store        Store[]       @relation("UserStores")
+  storeReviews StoreReview[] @relation("StoreReviews")
   // 
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@map("Users")
 }
@@ -61,6 +63,7 @@ enum Aminities {
 model Room {
   id               String               @id @default(auto()) @map("_id") @db.ObjectId
   name             String
+  roomNumber       String               @unique
   city             String
   direction        String?
   location         String // Location of Room
@@ -77,10 +80,10 @@ model Room {
   furnishingStatus FurnishingStatusEnum
   aminities        Aminities[]          @default([])
   // RELATIONSHIP
-  reviews          RoomReview[]         @relation("RoomReviews")
-  // RELATIONSHIP
   user             User                 @relation(fields: [userId], references: [id], name: "UserRooms")
   userId           String               @db.ObjectId
+  // RELATIONSHIP
+  roomReviews      RoomReview[]         @relation("RoomReviews")
   // 
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
@@ -105,11 +108,72 @@ model RoomReview {
 
   // @@index([userId])
   // @@index([roomForRentId])
-  @@map("Rooms_Review")
+  @@map("Room_Reviews")
+}
+
+enum StoreTypeEnum {
+  CLOTHING
+  FOOTWEAR
+  JEWELRY
+  COSMETICS
+  GADGETS
+  FURNITURE
+  SPORTS
+  GROCERY
+  PHARMACY
+  FITNESS
+  SPA
+  SALON
+  PETS
+  STATIONERY
+  HARDWARE
+  ELECTRONICS
+  GARDENING
 }
 
 model Store {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  storeNumber  String          @unique
+  description  String?
+  city         String
+  direction    String?
+  location     String
+  postedBy     Role            @default(USER)
+  photos       String[]
+  videos       String?
+  ratings      Float           @default(0)
+  verified     Boolean?
+  // ENUM
+  storeType    StoreTypeEnum[]
+  // RELATIONSHIP
+  user         User            @relation(fields: [userId], references: [id], name: "UserStores")
+  userId       String          @db.ObjectId
+  // RELATIONSHIP 
+  storeReviews StoreReview[]   @relation("StoreReviews")
+  // 
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([userId])
+  @@map("Stores")
+}
+
+model StoreReview {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Float
+  comment   String
+  // RELATIONSHIP 
+  user      User     @relation(fields: [userId], references: [id], name: "StoreReviews")
+  userId    String   @db.ObjectId
+  // RELATIONSHIP 
+  store     Store    @relation(fields: [roomId], references: [id], name: "StoreReviews")
+  roomId    String   @db.ObjectId
+  // 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Store_Reviews")
 }
 
 model Hostel {
@@ -124,10 +188,10 @@ model Land {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 }
 
-model Book {
+model Repair {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 }
 
-model Car {
+model Rental {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 }

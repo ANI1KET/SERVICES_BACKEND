@@ -5,6 +5,6 @@ export const ReviewSchema = z.object({
     message: "Rating must be in between 0 and 5",
   }),
   comment: z.string().min(5, { message: "Comment must not be empty" }),
-  roomForRentId: z.string().length(24), // Assuming MongoDB ObjectId
+  roomId: z.string().length(24), // Assuming MongoDB ObjectId
   userId: z.string().length(24), // Assuming MongoDB ObjectId
 });

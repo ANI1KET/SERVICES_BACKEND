@@ -2,7 +2,7 @@ import { Request, NextFunction, Response } from "express";
 
 import { prismaClient } from "../app";
 import GeoIPService from "../utils/GeoIPService";
-import { categorySchema } from "../schemas/location";
+import { categorySchema, citySchema } from "../schemas/location";
 
 GeoIPService.init()
   .then(() => {
@@ -23,8 +23,14 @@ function removeDiacritics(text: string): string {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-// type ModelName = "room" | "store" | "hostel" | "restaurant" | "land" | "book" | "car";
-type ModelName = "room";
+type ModelName =
+  | "room"
+  | "store"
+  | "hostel"
+  | "restaurant"
+  | "land"
+  | "repair"
+  | "rental";
 
 /* ------------------------------------------GET---------------------------------------- */
 // export const location = async (req: Request, res: Response) => {
@@ -84,7 +90,7 @@ type ModelName = "room";
 //     }
 //   };
 export const citiesLocation = async (req: Request, res: Response) => {
-  let category = "room";
+  let category: ModelName = "room";
   const clientIP = getClientIP(req);
   if (req.query.category) {
     category = categorySchema.parse(req.query.category);
@@ -92,20 +98,24 @@ export const citiesLocation = async (req: Request, res: Response) => {
 
   // const cityData = await GeoIPService.getCityData(clientIP);
   // const cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
-  // const cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
-  // const cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
+  //   const cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
+  //   const cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
   const cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
   const country = cityData?.country?.names.en;
   const city = cityData?.city?.names.en
     ? removeDiacritics(cityData.city.names.en)
     : undefined;
 
-  if (country !== "Nepal" && country !== undefined) {
-    throw new Error("Service is not available in your country.");
+  if (country && country !== "Nepal") {
+    return res
+      .status(403)
+      .json({ error: "Service is not available in your country." });
   }
 
   if (!city) {
-    const cities = await prismaClient[category as ModelName].findMany({
+    const cities = await (
+      prismaClient[category] as { findMany: Function }
+    ).findMany({
       select: { city: true },
       distinct: ["city"],
     });
@@ -114,11 +124,11 @@ export const citiesLocation = async (req: Request, res: Response) => {
   }
 
   const [cities, cityLocations] = await Promise.all([
-    prismaClient[category as ModelName].findMany({
+    (prismaClient[category] as { findMany: Function }).findMany({
       select: { city: true },
       distinct: ["city"],
     }),
-    prismaClient[category as ModelName].findMany({
+    (prismaClient[category] as { findMany: Function }).findMany({
       where: { city },
       select: { location: true },
     }),
@@ -132,23 +142,54 @@ export const cityLocation = async (
   res: Response,
   next: NextFunction
 ) => {
-  let { category, city } = req.query;
+  const { category, city } = req.query;
 
-  if (!category) {
-    throw Error("Specify the category");
-  }
-  if (!city || typeof city !== "string") {
-    throw Error("Specify the city");
-  }
+  categorySchema.parse(category);
+  citySchema.parse(city);
 
-  category = categorySchema.parse(req.query.category);
-
-  const citiesLocation = await prismaClient[category as ModelName].findMany({
+  const citiesLocation = await (
+    prismaClient[category as ModelName] as { findMany: Function }
+  ).findMany({
     where: { city },
     select: { location: true },
   });
 
   res.status(200).json(citiesLocation);
+};
+
+export const cityLocationsData = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const category = categorySchema.parse(req.path.replace(/^\/+/, ""));
+  const city = citySchema.parse(req.query.city);
+  const locations = req.query.locations ? req.query.locations : undefined;
+
+  // const filters = {
+  //   city,
+  //   ...(locations && {
+  //     OR: (JSON.parse(locations as string) as string[]).map((location) => ({
+  //       location: {
+  //         equals: location,
+  //       },
+  //     })),
+  //   }),
+  // };
+  const filters = {
+    city,
+    ...(locations && {
+      location: { in: JSON.parse(locations as string) as string[] },
+    }),
+  };
+
+  const cityLocation = await (
+    prismaClient[category as ModelName] as { findMany: Function }
+  ).findMany({
+    where: filters,
+  });
+
+  res.status(200).json(cityLocation);
 };
 /* ------------------------------------------POST---------------------------------------- */
 /* ------------------------------------------PUT----------------------------------------- */
