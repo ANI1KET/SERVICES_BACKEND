@@ -40,21 +40,21 @@ export const citiesLocation = async (req: Request, res: Response) => {
     category = categorySchema.parse(req.query.category);
   }
 
-  // const cityData = await GeoIPService.getCityData(clientIP);
+  const cityData = await GeoIPService.getCityData(clientIP);
   // const cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
   //   const cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
   //   const cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
-  const cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
+  // const cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
   const country = cityData?.country?.names.en;
   const city = cityData?.city?.names.en
     ? removeDiacritics(cityData.city.names.en)
     : undefined;
 
-  if (country && country !== "Nepal") {
-    return res
-      .status(403)
-      .json({ error: "Service is not available in your country." });
-  }
+  // if (country && country !== "Nepal") {
+  //   return res
+  //     .status(403)
+  //     .json({ error: "Service is not available in your country." });
+  // }
 
   if (!city) {
     const cities = await (
