@@ -33,62 +33,6 @@ type ModelName =
   | "rental";
 
 /* ------------------------------------------GET---------------------------------------- */
-// export const location = async (req: Request, res: Response) => {
-//     // let category: ModelName = "room";
-//     let category = "room";
-//     const clientIP = getClientIP(req);
-//     try {
-//       if (req.query.category) {
-//         category = categorySchema.parse(req.query.category);
-//       }
-
-//       // const cityData = await GeoIPService.getCityData(clientIP);
-//       // const cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
-//       // const cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
-//       // const cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
-//       const cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
-//       const country = cityData?.country?.names.en;
-//       const city = cityData?.city?.names.en
-//         ? removeDiacritics(cityData.city.names.en)
-//         : undefined;
-
-//       if (country !== "Nepal" && country !== undefined) {
-//         throw new Error("Service is not available in your country.");
-//       }
-
-//       if (!city) {
-//         const cities = await prismaClient[category as ModelName].findMany({
-//           select: { city: true },
-//           distinct: ["city"],
-//         });
-
-//         return res.status(200).json({ city: "", cities, cityLocations: [] });
-//       }
-
-//       // const [roomcitiesData, roomCityLocationsData] = await Promise.all([
-//       const [cities, cityLocations] = await Promise.all([
-//         prismaClient[category as ModelName].findMany({
-//           select: { city: true },
-//           distinct: ["city"],
-//         }),
-//         prismaClient[category as ModelName].findMany({
-//           where: { city },
-//           select: { location: true },
-//         }),
-//       ]);
-
-//       // const cities = citiesData.map((item) => item.city);
-//       // const cityLocations = cityLocationsData.map(
-//       //   (item) => item.location
-//       // );
-
-//       res.status(200).json({ city, cities, cityLocations });
-//     } catch (error: any) {
-//       const errorMessage =
-//         error instanceof z.ZodError ? error.errors[0].message : error.message;
-//       res.status(500).json({ error: errorMessage });
-//     }
-//   };
 export const citiesLocation = async (req: Request, res: Response) => {
   let category: ModelName = "room";
   const clientIP = getClientIP(req);
@@ -137,15 +81,13 @@ export const citiesLocation = async (req: Request, res: Response) => {
   res.status(200).json({ city, cities, cityLocations });
 };
 
-export const cityLocation = async (
+export const cityLocations = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { category, city } = req.query;
-
-  categorySchema.parse(category);
-  citySchema.parse(city);
+  const category = categorySchema.parse(req.query.category);
+  const city = citySchema.parse(req.query.city);
 
   const citiesLocation = await (
     prismaClient[category as ModelName] as { findMany: Function }
@@ -165,31 +107,81 @@ export const cityLocationsData = async (
   const category = categorySchema.parse(req.path.replace(/^\/+/, ""));
   const city = citySchema.parse(req.query.city);
   const locations = req.query.locations ? req.query.locations : undefined;
+  const filters = req.query.filters;
 
-  // const filters = {
+  const limit = parseInt(req.query.limit as string, 10) || 10;
+  const offset = parseInt(req.query.offset as string, 10) || 0;
+  // const filterQuery = {
   //   city,
   //   ...(locations && {
-  //     OR: (JSON.parse(locations as string) as string[]).map((location) => ({
+  //     OR: locations as string[]).map((location) => ({
   //       location: {
   //         equals: location,
   //       },
   //     })),
   //   }),
   // };
-  const filters = {
+  const filterQuery = {
     city,
     ...(locations && {
-      location: { in: JSON.parse(locations as string) as string[] },
+      location: { in: locations as string[] },
+      // location: { in: JSON.parse(locations as string) as string[] },
     }),
+    ...buildFilters(filters),
   };
 
   const cityLocation = await (
     prismaClient[category as ModelName] as { findMany: Function }
   ).findMany({
-    where: filters,
+    where: filterQuery,
+    take: limit,
+    skip: offset,
   });
 
   res.status(200).json(cityLocation);
+};
+
+const buildFilters = (filters: any) => {
+  if (!filters) return {};
+
+  const filterMap: Record<string, any> = {
+    price: ([min, max]: [string, string]) => ({
+      price: { gte: parseFloat(min), lte: parseFloat(max) },
+    }),
+    rating: ([min, max]: [string, string]) => ({
+      ratings: { gte: parseFloat(min), lte: parseFloat(max) },
+    }),
+    capacity: ([min, max]: [string, string]) => ({
+      OR: [
+        {
+          mincapacity: { lte: parseInt(max, 10) },
+          maxcapacity: { gte: parseInt(min, 10) },
+        },
+      ],
+    }),
+    verified: (value: string) => ({ verified: value === "true" }),
+    postedby: (value: string[]) => ({ postedBy: { in: value } }),
+    roomtype: (value: string[]) => ({ roomtype: { in: value } }),
+    amenities: (value: string[]) => ({ amenities: { hasSome: value } }),
+    furnishingstatus: (value: string[]) => ({
+      furnishingStatus: { in: value },
+    }),
+  };
+
+  return Object.entries(filters).reduce((acc, [key, value]) => {
+    // if (
+    //   value === undefined ||
+    //   value === null ||
+    //   (Array.isArray(value) && value.length === 0)
+    // ) {
+    //   return acc;
+    // }
+
+    if (filterMap[key]) {
+      Object.assign(acc, filterMap[key](value));
+    }
+    return acc;
+  }, {});
 };
 /* ------------------------------------------POST---------------------------------------- */
 /* ------------------------------------------PUT----------------------------------------- */
