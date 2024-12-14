@@ -35,20 +35,21 @@ type ModelName =
 /* ------------------------------------------GET---------------------------------------- */
 export const citiesLocation = async (req: Request, res: Response) => {
   let category: ModelName = "room";
-  // const clientIP = getClientIP(req);
+  const clientIP = getClientIP(req);
   if (req.query.category) {
     category = categorySchema.parse(req.query.category);
   }
 
-  // const cityData = await GeoIPService.getCityData(clientIP);
+  const cityData = await GeoIPService.getCityData(clientIP);
   // const cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
   //   const cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
   //   const cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
   // const cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
-  // const country = cityData?.country?.names.en;
-  // const city = cityData?.city?.names.en
-  //   ? removeDiacritics(cityData.city.names.en)
-  //   : undefined;
+  const country = cityData?.country?.names.en;
+  const city = cityData?.city?.names.en
+    ? removeDiacritics(cityData.city.names.en)
+    : undefined;
+  console.log(country, city);
 
   // if (country && country !== "Nepal") {
   //   return res
@@ -56,29 +57,31 @@ export const citiesLocation = async (req: Request, res: Response) => {
   //     .json({ error: "Service is not available in your country." });
   // }
 
-  // if (!city) {
-  const cities = await (
-    prismaClient[category] as { findMany: Function }
-  ).findMany({
-    select: { city: true },
-    distinct: ["city"],
-  });
+  if (!city) {
+    const cities = await (
+      prismaClient[category] as { findMany: Function }
+    ).findMany({
+      select: { city: true },
+      distinct: ["city"],
+    });
 
-  return res.status(200).json({ city: "", cities, cityLocations: [] });
-  // }
+    console.log("! ", { city: "", cities, cityLocations: [] });
+    return res.status(200).json({ city: "", cities, cityLocations: [] });
+  }
 
-  // const [cities, cityLocations] = await Promise.all([
-  //   (prismaClient[category] as { findMany: Function }).findMany({
-  //     select: { city: true },
-  //     distinct: ["city"],
-  //   }),
-  //   (prismaClient[category] as { findMany: Function }).findMany({
-  //     where: { city },
-  //     select: { location: true },
-  //   }),
-  // ]);
+  const [cities, cityLocations] = await Promise.all([
+    (prismaClient[category] as { findMany: Function }).findMany({
+      select: { city: true },
+      distinct: ["city"],
+    }),
+    (prismaClient[category] as { findMany: Function }).findMany({
+      where: { city },
+      select: { location: true },
+    }),
+  ]);
+  console.log("! ", { city, cities, cityLocations });
 
-  // res.status(200).json({ city, cities, cityLocations });
+  res.status(200).json({ city, cities, cityLocations });
 };
 
 export const cityLocations = async (
