@@ -25,12 +25,12 @@ function removeDiacritics(text: string): string {
 
 type ModelName =
   | "room"
+  | "land"
   | "store"
   | "hostel"
-  | "restaurant"
-  | "land"
   | "repair"
-  | "rental";
+  | "rental"
+  | "restaurant";
 
 /* ------------------------------------------GET---------------------------------------- */
 export const citiesLocation = async (req: Request, res: Response) => {
@@ -40,16 +40,18 @@ export const citiesLocation = async (req: Request, res: Response) => {
     category = categorySchema.parse(req.query.category);
   }
 
+  console.log(clientIP);
   const cityData = await GeoIPService.getCityData(clientIP);
   // const cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
   //   const cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
   //   const cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
   // const cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
+  console.log(cityData);
+
   const country = cityData?.country?.names.en;
   const city = cityData?.city?.names.en
     ? removeDiacritics(cityData.city.names.en)
     : undefined;
-  console.log(country, city);
 
   // if (country && country !== "Nepal") {
   //   return res
@@ -65,7 +67,6 @@ export const citiesLocation = async (req: Request, res: Response) => {
       distinct: ["city"],
     });
 
-    console.log("! ", { city: "", cities, cityLocations: [] });
     return res.status(200).json({ city: "", cities, cityLocations: [] });
   }
 
@@ -79,7 +80,6 @@ export const citiesLocation = async (req: Request, res: Response) => {
       select: { location: true },
     }),
   ]);
-  console.log("! ", { city, cities, cityLocations });
 
   res.status(200).json({ city, cities, cityLocations });
 };

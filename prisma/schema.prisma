@@ -31,7 +31,7 @@ model User {
   role         Role          @default(USER)
   // RELATIONSHIP
   rooms        Room[]        @relation("UserRooms")
-  roomReviews  RoomReview[]  @relation("RoomReviews")
+  reviews      RoomReview[]  @relation("RoomReviews")
   // RELATIONSHIP
   store        Store[]       @relation("UserStores")
   storeReviews StoreReview[] @relation("StoreReviews")
@@ -54,42 +54,41 @@ enum FurnishingStatusEnum {
   FURNISHED
 }
 
-enum Aminities {
+enum Amenities {
   PARKING
   WIFI
 }
 
 model Room {
   id               String               @id @default(auto()) @map("_id") @db.ObjectId
+  mincapacity      Int
+  maxcapacity      Int
+  price            Float
   name             String
   roomNumber       String
   city             String
+  location         String
   direction        String?
-  location         String // Location of Room
-  postedBy         Role                 @default(USER)
-  photos           String[] // Array of photo URLs/paths
-  videos           String? // video URLs/paths
-  price            Float // Price of Room
+  videos           String?
+  photos           String[]
   ratings          Float                @default(0)
-  mincapacity      Int // Constraint to ensure valid capacity
-  maxcapacity      Int // Maximum number of people allowed
-  verified         Boolean?
+  available        Boolean              @default(true)
+  postedBy         Role                 @default(USER)
+  verified         Boolean              @default(false)
   // ENUM
   roomtype         RoomTypeEnum
   furnishingStatus FurnishingStatusEnum
-  amenities        Aminities[]          @default([])
+  amenities        Amenities[]          @default([])
+  // RELATIONSHIP
+  roomReviews      RoomReview[]         @relation("RoomReviews")
   // RELATIONSHIP
   user             User                 @relation(fields: [userId], references: [id], name: "UserRooms")
   userId           String               @db.ObjectId
-  // RELATIONSHIP
-  roomReviews      RoomReview[]         @relation("RoomReviews")
   // 
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
 
   @@index([userId])
-  @@index([city, location])
-  // 
   @@map("Rooms")
 }
 
@@ -108,8 +107,8 @@ model RoomReview {
   updatedAt DateTime @updatedAt
 
   // @@index([userId])
-  // @@index([roomForRentId])
-  @@map("Room_Reviews")
+  // @@index([roomId])
+  @@map("Rooms_Review")
 }
 
 enum StoreTypeEnum {
@@ -178,21 +177,36 @@ model StoreReview {
 }
 
 model Hostel {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  city      String
+  direction String?
+  location  String
 }
 
 model Restaurant {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  city      String
+  direction String?
+  location  String
 }
 
 model Land {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  city      String
+  direction String?
+  location  String
 }
 
 model Repair {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  city      String
+  direction String?
+  location  String
 }
 
 model Rental {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  city      String
+  direction String?
+  location  String
 }

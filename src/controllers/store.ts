@@ -6,7 +6,7 @@ import { ErrorCode } from "../exceptions/errorhandler";
 import { BadRequestsException } from "../exceptions/bad_requests";
 
 /* ------------------------------------------GET---------------------------------------- */
-export const allRoomDetails = async (
+export const allStoreDetails = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -15,19 +15,19 @@ export const allRoomDetails = async (
   console.log(req.params);
 };
 
-export const roomDetails = async (
+export const storeDetails = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const roomId = req.params.roomId;
 
-  const roomData = await prismaClient.room.findFirst({
+  const roomData = await prismaClient.store.findFirst({
     where: {
       id: roomId,
     },
     include: {
-      roomReviews: true,
+      storeReviews: true,
       // user: true,
       user: {
         select: {
@@ -41,61 +41,50 @@ export const roomDetails = async (
 };
 
 /* -----------------------------------------POST---------------------------------------- */
-export const createRoom = async (
+export const createStore = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const {
-    name,
-    city,
-    roomNumber,
-    location,
-    photos,
-    videos,
-    price,
-    mincapacity,
-    maxcapacity,
-    roomtype,
-    furnishingStatus,
-    userId,
-  } = req.body;
-
-  // Create the room in the database
-  const newRoom = await prismaClient.room.create({
-    data: {
-      name,
-      city,
-      roomNumber,
-      location,
-      photos,
-      videos,
-      price,
-      mincapacity,
-      maxcapacity,
-      roomtype,
-      furnishingStatus,
-      userId,
-    },
-  });
-
+  // const {
+  //   name,
+  //   city,
+  //   roomNumber,
+  //   location,
+  //   photos,
+  //   videos,
+  //   price,
+  //   mincapacity,
+  //   maxcapacity,
+  //   roomtype,
+  //   furnishingStatus,
+  //   userId,
+  // } = req.body;
+  // // Create the room in the database
+  // const newRoom = await prismaClient.store.create({
+  //   data: {
+  //     name,
+  //     city,
+  //     roomNumber,
+  //     location,
+  //     photos,
+  //     videos,
+  //     price,
+  //     mincapacity,
+  //     maxcapacity,
+  //     roomtype,
+  //     furnishingStatus,
+  //     userId,
+  //   },
+  // });
   // Respond with the created room data
-  res.status(201).json({
-    success: true,
-    data: newRoom,
-  });
+  // res.status(201).json({
+  //   success: true,
+  //   data: newStore,
+  // });
 };
 
-export const bookRoom = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  //   const { roomId } = req.params;
-  console.log(req.params);
-};
-
-export const reviewRoom = async (
+export const reviewStore = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -106,24 +95,24 @@ export const reviewRoom = async (
 
   const newReview = await prismaClient.$transaction(async (prisma) => {
     // Step 1: Create a new review
-    const review = await prisma.roomReview.create({
+    const review = await prisma.storeReview.create({
       data: {
         rating,
         comment,
         user: { connect: { id: userId } },
-        room: { connect: { id: roomId } },
+        store: { connect: { id: roomId } },
       },
     });
 
     // Step 2: Calculate the new average rating for the room
-    const { _avg } = await prisma.roomReview.aggregate({
+    const { _avg } = await prisma.storeReview.aggregate({
       where: { roomId },
       _avg: { rating: true },
     });
 
     // Step 3: Update the `ratings` field in the `RoomForRent` model
     if (_avg.rating !== null) {
-      await prisma.room.update({
+      await prisma.store.update({
         where: { id: roomId },
         data: { ratings: _avg.rating }, // Set the average rating
       });
@@ -136,7 +125,7 @@ export const reviewRoom = async (
 };
 
 /* ------------------------------------------PUT----------------------------------------- */
-export const updateRoomDetails = async (
+export const updateStoreDetails = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -146,7 +135,7 @@ export const updateRoomDetails = async (
 };
 
 /* ----------------------------------------DELETE-----------------------------------------*/
-export const deleteRoom = async (
+export const deleteStore = async (
   req: Request,
   res: Response,
   next: NextFunction
