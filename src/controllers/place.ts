@@ -23,35 +23,33 @@ function removeDiacritics(text: string): string {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-type ModelName =
-  | "room"
-  | "land"
-  | "store"
-  | "hostel"
-  | "repair"
-  | "rental"
-  | "restaurant";
+const models = [
+  "room",
+  "store",
+  "hostel",
+  "restaurant",
+  "land",
+  "repair",
+  "rental",
+] as const;
+type ModelName = (typeof models)[number];
 
 /* ------------------------------------------GET---------------------------------------- */
 export const citiesLocation = async (req: Request, res: Response) => {
-  let category: ModelName = "room";
   const clientIP = getClientIP(req);
-  if (req.query.category) {
-    category = categorySchema.parse(req.query.category);
-  }
-
   console.log(clientIP);
+
   const cityData = await GeoIPService.getCityData(clientIP);
   // const cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
-  //   const cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
-  //   const cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
+  // const cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
+  // const cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
   // const cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
   console.log(cityData);
 
   const country = cityData?.country?.names.en;
   const city = cityData?.city?.names.en
     ? removeDiacritics(cityData.city.names.en)
-    : undefined;
+    : "Kathmandu";
 
   // if (country && country !== "Nepal") {
   //   return res
@@ -59,29 +57,57 @@ export const citiesLocation = async (req: Request, res: Response) => {
   //     .json({ error: "Service is not available in your country." });
   // }
 
-  if (!city) {
-    const cities = await (
-      prismaClient[category] as { findMany: Function }
-    ).findMany({
-      select: { city: true },
-      distinct: ["city"],
-    });
+  const results = await Promise.all(
+    models.map(async (model) => {
+      // const cities = await (
+      //   prismaClient[model as ModelName] as { findMany: Function }
+      // ).findMany({
+      //   select: { city: true },
+      //   distinct: ["city"],
+      // });
 
-    return res.status(200).json({ city: "", cities, cityLocations: [] });
-  }
+      // const cityLocations = await (
+      //   prismaClient[model as ModelName] as { findMany: Function }
+      // ).findMany({
+      //   where: { city: city },
+      //   select: { location: true },
+      // });
+      const [cities, cityLocations] = await Promise.all([
+        (prismaClient[model as ModelName] as { findMany: Function }).findMany({
+          select: { city: true },
+          distinct: ["city"],
+        }),
+        (prismaClient[model as ModelName] as { findMany: Function }).findMany({
+          where: { city: city },
+          select: { location: true },
+        }),
+      ]);
 
-  const [cities, cityLocations] = await Promise.all([
-    (prismaClient[category] as { findMany: Function }).findMany({
-      select: { city: true },
-      distinct: ["city"],
-    }),
-    (prismaClient[category] as { findMany: Function }).findMany({
-      where: { city },
-      select: { location: true },
-    }),
-  ]);
+      const cityData = cities.reduce(
+        (acc: Record<string, string[]>, { city }: { city: string }) => {
+          acc[city] = [];
+          return acc;
+        },
+        {}
+      );
 
-  res.status(200).json({ city, cities, cityLocations });
+      if (city in cityData) {
+        cityData[city] = cityLocations.map(
+          ({ location }: { location: string }) => location
+        );
+      }
+
+      return {
+        [model]: cityData,
+      };
+    })
+  );
+  const transformedResult = results.reduce(
+    (acc, curr) => ({ ...acc, ...curr }),
+    {}
+  );
+
+  res.status(200).json({ city: city, ...transformedResult });
 };
 
 export const cityLocations = async (

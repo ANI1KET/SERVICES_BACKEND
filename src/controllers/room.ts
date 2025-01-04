@@ -11,8 +11,33 @@ export const allRoomDetails = async (
   res: Response,
   next: NextFunction
 ) => {
-  //   const { roomId } = req.params;
-  console.log(req.params);
+  const limit = parseInt(req.query.limit as string, 10) || 10;
+  const offset = parseInt(req.query.offset as string, 10) || 0;
+
+  const categoryDetails = await prismaClient.room.findMany({
+    include: {
+      user: {
+        select: {
+          role: true,
+        },
+      },
+      roomReviews: {
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
+        },
+      },
+    },
+    take: limit,
+    skip: offset,
+  });
+
+  res.status(200).json(categoryDetails);
 };
 
 export const roomDetails = async (

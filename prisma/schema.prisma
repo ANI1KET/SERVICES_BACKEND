@@ -88,6 +88,7 @@ model Room {
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
 
+  @@index([city])
   @@index([userId])
   @@map("Rooms")
 }
@@ -106,9 +107,9 @@ model RoomReview {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // @@index([userId])
+  @@index([userId])
   // @@index([roomId])
-  @@map("Rooms_Review")
+  @@map("Room_Reviews")
 }
 
 enum StoreTypeEnum {
@@ -155,6 +156,7 @@ model Store {
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
+  @@index([city])
   @@index([userId])
   @@map("Stores")
 }
@@ -173,6 +175,7 @@ model StoreReview {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([userId])
   @@map("Store_Reviews")
 }
 
