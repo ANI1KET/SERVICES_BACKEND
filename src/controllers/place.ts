@@ -163,6 +163,24 @@ export const cityLocationsData = async (
     prismaClient[category as ModelName] as { findMany: Function }
   ).findMany({
     where: filterQuery,
+    // include: {
+    // user: {
+    //   select: {
+    //     role: true,
+    //   },
+    // },
+    // roomReviews: {
+    //   include: {
+    //     user: {
+    //       select: {
+    //         name: true,
+    //         email: true,
+    //         image: true,
+    //       },
+    //     },
+    //   },
+    // },
+    // },
     take: limit,
     skip: offset,
   });

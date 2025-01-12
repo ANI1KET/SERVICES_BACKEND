@@ -13,26 +13,30 @@ export const allRoomDetails = async (
 ) => {
   const limit = parseInt(req.query.limit as string, 10) || 10;
   const offset = parseInt(req.query.offset as string, 10) || 0;
+  const city = req.query.city as string;
 
   const categoryDetails = await prismaClient.room.findMany({
-    include: {
-      user: {
-        select: {
-          role: true,
-        },
-      },
-      roomReviews: {
-        include: {
-          user: {
-            select: {
-              name: true,
-              email: true,
-              image: true,
-            },
-          },
-        },
-      },
+    where: {
+      city: city,
     },
+    // include: {
+    // user: {
+    //   select: {
+    //     role: true,
+    //   },
+    // },
+    //   roomReviews: {
+    //     include: {
+    //       user: {
+    //         select: {
+    //           name: true,
+    //           email: true,
+    //           image: true,
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
     take: limit,
     skip: offset,
   });
