@@ -47,9 +47,10 @@ export const citiesLocation = async (req: Request, res: Response) => {
   console.log(cityData);
 
   const country = cityData?.country?.names.en;
-  const city = cityData?.city?.names.en
-    ? removeDiacritics(cityData.city.names.en)
-    : "Kathmandu";
+  const city = "Kathmandu";
+  // cityData?.city?.names.en
+  //   ? removeDiacritics(cityData.city.names.en)
+  // :
 
   // if (country && country !== "Nepal") {
   //   return res
