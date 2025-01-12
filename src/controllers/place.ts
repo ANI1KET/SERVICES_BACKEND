@@ -36,21 +36,21 @@ type ModelName = (typeof models)[number];
 
 /* ------------------------------------------GET---------------------------------------- */
 export const citiesLocation = async (req: Request, res: Response) => {
-  const clientIP = getClientIP(req);
-  console.log(clientIP);
+  // const clientIP = getClientIP(req);
+  // console.log(clientIP);
 
-  const cityData = await GeoIPService.getCityData(clientIP);
+  // const cityData = await GeoIPService.getCityData(clientIP);
   // const cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
   // const cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
   // const cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
   // const cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
-  console.log(cityData);
+  // console.log(cityData);
 
-  const country = cityData?.country?.names.en;
-  const city = "Kathmandu";
-  // cityData?.city?.names.en
+  // const country = cityData?.country?.names.en;
+  // const city = cityData?.city?.names.en
   //   ? removeDiacritics(cityData.city.names.en)
-  // :
+  //   : "Kathmandu";
+  const city = "Kathmandu";
 
   // if (country && country !== "Nepal") {
   //   return res
@@ -107,7 +107,6 @@ export const citiesLocation = async (req: Request, res: Response) => {
     (acc, curr) => ({ ...acc, ...curr }),
     {}
   );
-  console.log("! ", transformedResult);
 
   res.status(200).json({ city: city, ...transformedResult });
 };

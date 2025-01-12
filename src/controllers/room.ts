@@ -40,7 +40,6 @@ export const allRoomDetails = async (
     take: limit,
     skip: offset,
   });
-  console.log("!! ", categoryDetails);
 
   res.status(200).json(categoryDetails);
 };
