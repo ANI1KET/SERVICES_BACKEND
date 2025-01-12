@@ -106,6 +106,7 @@ export const citiesLocation = async (req: Request, res: Response) => {
     (acc, curr) => ({ ...acc, ...curr }),
     {}
   );
+  console.log("! ", transformedResult);
 
   res.status(200).json({ city: city, ...transformedResult });
 };
