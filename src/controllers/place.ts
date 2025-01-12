@@ -103,10 +103,12 @@ export const citiesLocation = async (req: Request, res: Response) => {
       };
     })
   );
+  console.log(results);
   const transformedResult = results.reduce(
     (acc, curr) => ({ ...acc, ...curr }),
     {}
   );
+  console.log(transformedResult);
 
   res.status(200).json({ city: city, ...transformedResult });
 };
