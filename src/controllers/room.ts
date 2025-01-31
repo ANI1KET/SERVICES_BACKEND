@@ -166,7 +166,7 @@ export const reviewRoom = async (
       });
     }
 
-    return review; // Return the newly created review
+    return review;
   });
 
   res.status(201).json(newReview);
