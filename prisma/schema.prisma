@@ -42,12 +42,6 @@ model User {
   @@map("Users")
 }
 
-enum RoomTypeEnum {
-  FLAT
-  ONE_BHK
-  TWO_BHK
-}
-
 enum FurnishingStatusEnum {
   UNFURNISHED
   SEMIFURNISHED
@@ -55,8 +49,9 @@ enum FurnishingStatusEnum {
 }
 
 enum Amenities {
-  PARKING
   WIFI
+  WATER
+  PARKING
 }
 
 model Room {
@@ -75,8 +70,12 @@ model Room {
   available        Boolean              @default(true)
   postedBy         Role                 @default(USER)
   verified         Boolean              @default(false)
+  bedroom          Int
+  hall             Int
+  kitchen          Int
+  bathroom         Int
+  roomtype         String
   // ENUM
-  roomtype         RoomTypeEnum
   furnishingStatus FurnishingStatusEnum
   amenities        Amenities[]          @default([])
   // RELATIONSHIP

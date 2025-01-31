@@ -87,10 +87,13 @@ export const createRoom = async (
     maxcapacity,
     roomtype,
     furnishingStatus,
+    bedroom,
+    hall,
+    kitchen,
+    bathroom,
     userId,
   } = req.body;
 
-  // Create the room in the database
   const newRoom = await prismaClient.room.create({
     data: {
       name,
@@ -100,15 +103,20 @@ export const createRoom = async (
       photos,
       videos,
       price,
+      bedroom,
+      hall,
+      kitchen,
+      bathroom,
       mincapacity,
       maxcapacity,
       roomtype,
       furnishingStatus,
-      userId,
+      user: {
+        connect: { id: userId },
+      },
     },
   });
 
-  // Respond with the created room data
   res.status(201).json({
     success: true,
     data: newRoom,
