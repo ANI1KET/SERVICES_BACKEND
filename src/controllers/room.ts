@@ -56,7 +56,7 @@ export const roomDetails = async (
       id: roomId,
     },
     include: {
-      roomReviews: true,
+      reviews: true,
       // user: true,
       user: {
         select: {
@@ -78,20 +78,21 @@ export const createRoom = async (
   const {
     name,
     city,
-    roomNumber,
-    location,
-    photos,
-    videos,
-    price,
-    mincapacity,
-    maxcapacity,
-    roomtype,
-    furnishingStatus,
-    bedroom,
     hall,
+    price,
+    photos,
+    userId,
+    videos,
+    bedroom,
     kitchen,
     bathroom,
-    userId,
+    location,
+    roomtype,
+    mincapacity,
+    maxcapacity,
+    ownerContact,
+    primaryContact,
+    furnishingStatus,
   } = req.body;
 
   const newRoom = await prismaClient.room.create({
@@ -107,9 +108,10 @@ export const createRoom = async (
       roomtype,
       location,
       bathroom,
-      roomNumber,
       maxcapacity,
       mincapacity,
+      ownerContact,
+      primaryContact,
       furnishingStatus,
       user: {
         connect: { id: userId },

@@ -14,10 +14,20 @@ datasource db {
 }
 
 enum Role {
+  USER
   ADMIN
   OWNER
   BROKER
-  USER
+}
+
+enum Permission {
+  room
+  land
+  store
+  hostel
+  repair
+  rental
+  restaurant
 }
 
 model User {
@@ -29,9 +39,10 @@ model User {
   password     String?
   // ENUM
   role         Role          @default(USER)
+  permission   Permission[]  @default([])
   // RELATIONSHIP
   rooms        Room[]        @relation("UserRooms")
-  reviews      RoomReview[]  @relation("RoomReviews")
+  roomReviews  RoomReview[]  @relation("RoomReviews")
   // RELATIONSHIP
   store        Store[]       @relation("UserStores")
   storeReviews StoreReview[] @relation("StoreReviews")
@@ -60,7 +71,8 @@ model Room {
   maxcapacity      Int
   price            Float
   name             String
-  roomNumber       String
+  ownerContact     String
+  primaryContact   String
   city             String
   location         String
   direction        String?
@@ -79,7 +91,7 @@ model Room {
   furnishingStatus FurnishingStatusEnum
   amenities        Amenities[]          @default([])
   // RELATIONSHIP
-  roomReviews      RoomReview[]         @relation("RoomReviews")
+  reviews          RoomReview[]         @relation("RoomReviews")
   // RELATIONSHIP
   user             User                 @relation(fields: [userId], references: [id], name: "UserRooms")
   userId           String               @db.ObjectId

@@ -1,11 +1,10 @@
-import { getToken } from "next-auth/jwt";
-
-import { Request, NextFunction, Response } from "express";
-import { UnauthorizedException } from "../exceptions/unauthorized";
-import { ErrorCode } from "../exceptions/errorhandler";
-import { JWT_TOKEN_SECRET } from "../env_variable";
-import { prismaClient } from "../app";
 import { User } from "@prisma/client";
+import { getToken } from "next-auth/jwt";
+import { Request, NextFunction, Response } from "express";
+
+import { JWT_TOKEN_SECRET } from "../env_variable";
+import { ErrorCode } from "../exceptions/errorhandler";
+import { UnauthorizedException } from "../exceptions/unauthorized";
 
 const authMiddleware = async (
   req: Request,
@@ -31,12 +30,12 @@ const authMiddleware = async (
     req.user = {
       id: decodedToken.sub,
       name: decodedToken.name,
+      role: decodedToken.role,
       email: decodedToken.email,
       number: decodedToken.number,
-      role: decodedToken.role,
     } as User;
 
-    // return next();
+    return next();
   } catch (e) {
     console.log(e);
     return new UnauthorizedException(

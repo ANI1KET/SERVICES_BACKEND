@@ -22,7 +22,7 @@ export const signUp = async (
 
   if (user)
     throw new BadRequestsException(
-      "User already exist",
+      "Account already exist",
       ErrorCode.USER_ALREADY_EXIST
     );
 
@@ -36,7 +36,7 @@ export const signUp = async (
     },
   });
 
-  res.status(201).json(user);
+  res.status(201).json("Account Sucessfully Created");
 };
 
 // export const login = async (
