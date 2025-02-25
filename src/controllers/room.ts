@@ -56,7 +56,7 @@ export const roomDetails = async (
       id: roomId,
     },
     include: {
-      // reviews: true,
+      reviews: true,
       // user: true,
       user: {
         select: {
@@ -75,53 +75,55 @@ export const createRoom = async (
   res: Response,
   next: NextFunction
 ) => {
-  // const {
-  //   name,
-  //   city,
-  //   hall,
-  //   price,
-  //   photos,
-  //   userId,
-  //   videos,
-  //   bedroom,
-  //   kitchen,
-  //   bathroom,
-  //   location,
-  //   roomtype,
-  //   mincapacity,
-  //   maxcapacity,
-  //   ownerContact,
-  //   primaryContact,
-  //   furnishingStatus,
-  // } = req.body;
-  // const newRoom = await prismaClient.room.create({
-  //   data: {
-  //     name,
-  //     city,
-  //     hall,
-  //     price,
-  //     photos,
-  //     userId,
-  //     videos,
-  //     bedroom,
-  //     kitchen,
-  //     bathroom,
-  //     location,
-  //     roomtype,
-  //     mincapacity,
-  //     maxcapacity,
-  //     ownerContact,
-  //     primaryContact,
-  //     furnishingStatus,
-  //     user: {
-  //       connect: { id: userId },
-  //     },
-  //   },
-  // });
-  // res.status(201).json({
-  //   success: true,
-  //   data: newRoom,
-  // });
+  const {
+    name,
+    city,
+    hall,
+    price,
+    photos,
+    userId,
+    videos,
+    bedroom,
+    kitchen,
+    bathroom,
+    location,
+    roomtype,
+    mincapacity,
+    maxcapacity,
+    ownerContact,
+    primaryContact,
+    furnishingStatus,
+  } = req.body;
+
+  const newRoom = await prismaClient.room.create({
+    data: {
+      name,
+      city,
+      hall,
+      price,
+      photos,
+      userId,
+      videos,
+      bedroom,
+      kitchen,
+      bathroom,
+      location,
+      roomtype,
+      mincapacity,
+      maxcapacity,
+      ownerContact,
+      primaryContact,
+      furnishingStatus,
+      user: {
+        connect: { id: userId },
+      },
+    },
+  });
+
+  res.status(201).json({
+    success: true,
+    data: newRoom,
+  });
 };
 
 export const bookRoom = async (
