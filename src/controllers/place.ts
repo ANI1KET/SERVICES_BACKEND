@@ -36,27 +36,32 @@ type ModelName = (typeof models)[number];
 
 /* ------------------------------------------GET---------------------------------------- */
 export const citiesLocation = async (req: Request, res: Response) => {
-  // const clientIP = getClientIP(req);
-  // console.log(clientIP);
+  const clientIP = getClientIP(req);
+  console.log(clientIP);
 
-  // const cityData = await GeoIPService.getCityData(clientIP);
-  // const cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
-  // const cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
-  // const cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
-  // const cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
-  // console.log(cityData);
+  let cityData, country, city;
+  try {
+    cityData = await GeoIPService.getCityData(clientIP);
+    // cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
+    // cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
+    // cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
+    // cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
+    console.log(cityData);
 
-  // const country = cityData?.country?.names.en;
-  // const city = cityData?.city?.names.en
-  // ? removeDiacritics(cityData.city.names.en)
-  // : "Kathmandu";
-  const city = "Kathmandu";
+    country = cityData?.country?.names.en;
+    city = cityData?.city?.names.en
+      ? removeDiacritics(cityData.city.names.en)
+      : "Kathmandu";
+  } catch (error) {
+    city = "Kathmandu";
+    // console.log(error);
+  }
 
-  // if (country && country !== "Nepal") {
-  //   return res
-  //     .status(403)
-  //     .json({ error: "Service is not available in your country." });
-  // }
+  if (country && country !== "Nepal") {
+    return res
+      .status(403)
+      .json({ error: "Service is not available in your country." });
+  }
 
   const results = await Promise.all(
     models.map(async (model) => {
