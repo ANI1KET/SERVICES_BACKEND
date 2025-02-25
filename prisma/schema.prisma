@@ -31,38 +31,35 @@ enum Permission {
 }
 
 model User {
-  id           String        @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  email        String        @unique
-  image        String?
-  number       String?
-  password     String?
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String       @unique
+  image       String?
+  number      String?
+  password    String?
   // ENUM
-  role         Role          @default(USER)
-  permission   Permission[]  @default([])
+  role        Role         @default(USER)
+  permission  Permission[] @default([])
   // RELATIONSHIP
-  rooms        Room[]        @relation("UserRooms")
-  roomReviews  RoomReview[]  @relation("RoomReviews")
-  // RELATIONSHIP
+  rooms       Room[]       @relation("UserRooms")
+  roomReviews RoomReview[] @relation("RoomReviews")
+
   store        Store[]       @relation("UserStores")
   storeReviews StoreReview[] @relation("StoreReviews")
-  // 
+  // TIMESTAMPS
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
+  @@index([role])
+  @@index([permission])
+  @@index([role, permission])
   @@map("Users")
 }
 
 enum FurnishingStatusEnum {
+  FURNISHED
   UNFURNISHED
   SEMIFURNISHED
-  FURNISHED
-}
-
-enum Amenities {
-  WIFI
-  WATER
-  PARKING
 }
 
 model Room {
@@ -87,9 +84,9 @@ model Room {
   kitchen          Int
   bathroom         Int
   roomtype         String
+  amenities        String[]             @default([])
   // ENUM
   furnishingStatus FurnishingStatusEnum
-  amenities        Amenities[]          @default([])
   // RELATIONSHIP
   reviews          RoomReview[]         @relation("RoomReviews")
   // RELATIONSHIP
