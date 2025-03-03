@@ -36,33 +36,34 @@ type ModelName = (typeof models)[number];
 
 /* ------------------------------------------GET---------------------------------------- */
 export const citiesLocation = async (req: Request, res: Response) => {
-  const clientIP = getClientIP(req);
-  console.log(clientIP);
+  // const clientIP = getClientIP(req);
+  // console.log(clientIP);
 
-  let cityData, country, city;
-  try {
-    cityData = await GeoIPService.getCityData(clientIP);
-    // cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
-    // cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
-    // cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
-    // cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
+  // let cityData, country, city;
+  // try {
+  //   cityData = await GeoIPService.getCityData(clientIP);
+  //   // cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
+  //   // cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
+  //   // cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
+  //   // cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
 
-    country = cityData?.country?.names.en;
-    city = cityData?.city?.names.en
-      ? removeDiacritics(cityData.city.names.en)
-      : "Kathmandu";
-  } catch (error) {
-    city = "Kathmandu";
-    // console.log(error);
-  }
-  console.log(cityData);
+  //   country = cityData?.country?.names.en;
+  //   city = cityData?.city?.names.en
+  //     ? removeDiacritics(cityData.city.names.en)
+  //     : "Kathmandu";
+  // } catch (error) {
+  const city = "Kathmandu";
+  //   // console.log(error);
+  // }
+  // console.log(cityData);
 
-  if (country && country !== "Nepal") {
-    return res
-      .status(403)
-      .json({ error: "Service is not available in your country." });
-  }
-  console.log("cityData");
+  // if (country && country !== "Nepal") {
+  //   return res
+  //     .status(403)
+  //     .json({ error: "Service is not available in your country." });
+  // }
+  // console.log(country);
+  // console.log(city);
 
   const results = await Promise.all(
     models.map(async (model) => {
