@@ -62,6 +62,7 @@ export const citiesLocation = async (req: Request, res: Response) => {
       .status(403)
       .json({ error: "Service is not available in your country." });
   }
+  console.log("cityData");
 
   const results = await Promise.all(
     models.map(async (model) => {
