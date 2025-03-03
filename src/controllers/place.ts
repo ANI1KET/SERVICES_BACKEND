@@ -46,7 +46,6 @@ export const citiesLocation = async (req: Request, res: Response) => {
     // cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
     // cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
     // cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
-    console.log(cityData);
 
     country = cityData?.country?.names.en;
     city = cityData?.city?.names.en
@@ -56,6 +55,7 @@ export const citiesLocation = async (req: Request, res: Response) => {
     city = "Kathmandu";
     // console.log(error);
   }
+  console.log(cityData);
 
   if (country && country !== "Nepal") {
     return res

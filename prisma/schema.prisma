@@ -42,7 +42,7 @@ model User {
   permission  Permission[] @default([])
   // RELATIONSHIP
   rooms       Room[]       @relation("UserRooms")
-  roomReviews RoomReview[] @relation("UserToRoomReviews")
+  roomReviews RoomReview[] @relation("RoomReviews")
 
   store        Store[]       @relation("UserStores")
   storeReviews StoreReview[] @relation("StoreReviews")
@@ -88,7 +88,7 @@ model Room {
   // ENUM
   furnishingStatus FurnishingStatusEnum
   // RELATIONSHIP
-  reviews          RoomReview[]         @relation("RoomToRoomReviews")
+  reviews          RoomReview[]         @relation("RoomReviews")
   // RELATIONSHIP
   user             User                 @relation(fields: [userId], references: [id], name: "UserRooms")
   userId           String               @db.ObjectId
@@ -106,10 +106,10 @@ model RoomReview {
   rating    Float
   comment   String
   // RELATIONSHIP 
-  room      Room     @relation(fields: [roomId], references: [id], name: "RoomToRoomReviews")
+  room      Room     @relation(fields: [roomId], references: [id], name: "RoomReviews")
   roomId    String   @db.ObjectId
   // RELATIONSHIP 
-  user      User     @relation(fields: [userId], references: [id], name: "UserToRoomReviews")
+  user      User     @relation(fields: [userId], references: [id], name: "RoomReviews")
   userId    String   @db.ObjectId
   // 
   createdAt DateTime @default(now())
