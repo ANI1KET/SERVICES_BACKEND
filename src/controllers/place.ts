@@ -1,27 +1,27 @@
 import { Request, NextFunction, Response } from "express";
 
 import { prismaClient } from "../app";
-import GeoIPService from "../utils/GeoIPService";
+// import GeoIPService from "../utils/GeoIPService";
 import { categorySchema, citySchema } from "../schemas/location";
 
-GeoIPService.init()
-  .then(() => {
-    console.log("GeoIPService Inittialized");
-  })
-  .catch((error) => {
-    console.error("Error initializing GeoIPService:", error);
-  });
+// GeoIPService.init()
+//   .then(() => {
+//     console.log("GeoIPService Inittialized");
+//   })
+//   .catch((error) => {
+//     console.error("Error initializing GeoIPService:", error);
+//   });
 
-function getClientIP(req: Request): string {
-  const forwarded = req.headers["x-forwarded-for"] as string;
-  return forwarded
-    ? forwarded.split(",")[0].trim()
-    : req.socket.remoteAddress || "";
-}
+// function getClientIP(req: Request): string {
+//   const forwarded = req.headers["x-forwarded-for"] as string;
+//   return forwarded
+//     ? forwarded.split(",")[0].trim()
+//     : req.socket.remoteAddress || "";
+// }
 
-function removeDiacritics(text: string): string {
-  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
+// function removeDiacritics(text: string): string {
+//   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+// }
 
 const models = [
   "room",

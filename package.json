@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "build": "tsc && mkdir -p build/utils && cp src/utils/GeoLite2-City.mmdb build/utils/",
+    "build": "tsc",
     "start": "node build/server.js",
     "watch": "tsc -w",
     "dev": "nodemon build/server.js"
