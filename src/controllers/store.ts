@@ -1,9 +1,9 @@
 import { Request, NextFunction, Response } from "express";
 
-import { prismaClient } from "../app";
-import { ReviewSchema } from "../schemas/room";
-import { ErrorCode } from "../exceptions/errorhandler";
-import { BadRequestsException } from "../exceptions/bad_requests";
+import { prismaClient } from "../app.js";
+import { ReviewSchema } from "../schemas/room.js";
+import { ErrorCode } from "../exceptions/errorhandler.js";
+import { BadRequestsException } from "../exceptions/bad_requests.js";
 
 /* ------------------------------------------GET---------------------------------------- */
 export const allStoreDetails = async (

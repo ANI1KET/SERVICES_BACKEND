@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import {
   createHostel,
   reviewHostel,
@@ -6,8 +7,8 @@ import {
   hostelDetails,
   allhostelDetails,
   updatehostelDetails,
-} from "../controllers/hostel";
-import { errorHandler } from "../utils/error_handler";
+} from "../controllers/hostel.js";
+import { errorHandler } from "../utils/error_handler.js";
 
 const roomRoutes: Router = Router();
 

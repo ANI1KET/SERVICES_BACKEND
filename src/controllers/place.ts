@@ -1,8 +1,8 @@
 import { Request, NextFunction, Response } from "express";
 
-import { prismaClient } from "../app";
+import { prismaClient } from "../app.js";
 // import GeoIPService from "../utils/GeoIPService";
-import { categorySchema, citySchema } from "../schemas/location";
+import { categorySchema, citySchema } from "../schemas/location.js";
 
 // GeoIPService.init()
 //   .then(() => {

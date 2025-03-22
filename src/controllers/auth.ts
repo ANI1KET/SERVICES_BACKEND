@@ -1,13 +1,13 @@
-import { Request, NextFunction, Response } from "express";
-import { hashSync, compareSync } from "bcrypt";
 import * as jwt from "jsonwebtoken";
+import { hashSync, compareSync } from "bcrypt";
+import { Request, NextFunction, Response } from "express";
 
-import { prismaClient } from "../app";
-import { JWT_TOKEN_SECRET } from "../env_variable";
-import { BadRequestsException } from "../exceptions/bad_requests";
-import { ErrorCode } from "../exceptions/errorhandler";
-import { LoginSchema, SignupSchema } from "../schemas/uers";
-import { NotFoundException } from "../exceptions/not_found";
+import { prismaClient } from "../app.js";
+import { JWT_TOKEN_SECRET } from "../env_variable.js";
+import { ErrorCode } from "../exceptions/errorhandler.js";
+import { NotFoundException } from "../exceptions/not_found.js";
+import { LoginSchema, SignupSchema } from "../schemas/uers.js";
+import { BadRequestsException } from "../exceptions/bad_requests.js";
 
 export const signUp = async (
   req: Request,

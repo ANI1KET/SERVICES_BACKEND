@@ -1,4 +1,4 @@
-import { ErrorCode, HttpException } from "./errorhandler";
+import { ErrorCode, HttpException } from "./errorhandler.js";
 
 export class BadRequestsException extends HttpException {
   constructor(message: string, errorCode: ErrorCode, error: any = null) {

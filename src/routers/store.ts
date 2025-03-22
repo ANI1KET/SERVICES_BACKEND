@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import {
   reviewStore,
   createStore,
@@ -6,8 +7,8 @@ import {
   storeDetails,
   allStoreDetails,
   updateStoreDetails,
-} from "../controllers/store";
-import { errorHandler } from "../utils/error_handler";
+} from "../controllers/store.js";
+import { errorHandler } from "../utils/error_handler.js";
 
 const roomRoutes: Router = Router();
 

@@ -1,4 +1,4 @@
-import { ErrorCode, HttpException } from "./errorhandler";
+import { ErrorCode, HttpException } from "./errorhandler.js";
 
 export class InternalException extends HttpException {
   constructor(message: string, errors: any, errorCode: ErrorCode) {

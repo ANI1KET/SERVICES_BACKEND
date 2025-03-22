@@ -4,8 +4,8 @@ import {
   citiesLocation,
   cityLocations,
   cityLocationsData,
-} from "../controllers/place";
-import { errorHandler } from "../utils/error_handler";
+} from "../controllers/place.js";
+import { errorHandler } from "../utils/error_handler.js";
 
 const placeRoutes: Router = Router();
 

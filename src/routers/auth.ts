@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import { signUp } from "../controllers/auth";
-import { errorHandler } from "../utils/error_handler";
+import { signUp } from "../controllers/auth.js";
+import { errorHandler } from "../utils/error_handler.js";
 // import authMiddleware from "../middlewares/auth";
 // import adminMiddleware from "../middlewares/admin";
 

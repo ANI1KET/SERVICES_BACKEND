@@ -2,9 +2,9 @@ import os from "os";
 import { Server } from "http";
 import cluster from "cluster";
 
-import app from "./app";
-import { PORT } from "./env_variable";
-import { setupGracefulShutdown } from "./utils/shutdownHandler";
+import app from "./app.js";
+import { PORT } from "./env_variable.js";
+import { setupGracefulShutdown } from "./utils/shutdownHandler.js";
 
 // Error handling for uncaught exceptions
 process.on("uncaughtException", (err) => {

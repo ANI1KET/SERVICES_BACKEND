@@ -2,9 +2,9 @@ import { User } from "@prisma/client";
 import { getToken } from "next-auth/jwt";
 import { Request, NextFunction, Response } from "express";
 
-import { JWT_TOKEN_SECRET } from "../env_variable";
-import { ErrorCode } from "../exceptions/errorhandler";
-import { UnauthorizedException } from "../exceptions/unauthorized";
+import { JWT_TOKEN_SECRET } from "../env_variable.js";
+import { ErrorCode } from "../exceptions/errorhandler.js";
+import { UnauthorizedException } from "../exceptions/unauthorized.js";
 
 const authMiddleware = async (
   req: Request,

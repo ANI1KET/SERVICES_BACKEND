@@ -4,8 +4,8 @@ import express, { Express } from "express";
 import rateLimit from "express-rate-limit";
 import { PrismaClient } from "@prisma/client";
 
-import rootRoute from "./routers/rootRouter";
-import { errorMiddleware } from "./middlewares/errors";
+import rootRoute from "./routers/rootRouter.js";
+import { errorMiddleware } from "./middlewares/errors.js";
 
 const app: Express = express();
 
@@ -18,9 +18,11 @@ const limiter = rateLimit({
   message: "Too many requests, please try again later.",
 });
 
+app.set("trust proxy", 1);
+
 app.use(
   cors({
-    origin: true,
+    origin: "https://services.aniketrouniyar.com.np",
     credentials: true,
   })
 );

@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import {
   createRoom,
   bookRoom,
@@ -7,8 +8,8 @@ import {
   allRoomDetails,
   updateRoomDetails,
   deleteRoom,
-} from "../controllers/room";
-import { errorHandler } from "../utils/error_handler";
+} from "../controllers/room.js";
+import { errorHandler } from "../utils/error_handler.js";
 
 const roomRoutes: Router = Router();
 

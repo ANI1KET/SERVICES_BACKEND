@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node build/server.js",
     "watch": "tsc -w",
-    "dev": "nodemon build/server.js"
+    "start": "set NODE_ENV=production && node build/server.js",
+    "dev": "set NODE_ENV=development && nodemon build/server.js"
   },
   "author": "",
   "license": "ISC",
