@@ -16,16 +16,14 @@ export const upgradeUser = async (
 
   const { userId, permission, durationInDays, role } = req.body;
 
-  const user = await prismaClient.user.findUnique({
-    where: { id: userId },
-    select: { subscription: { select: { permissions: true } } },
+  const subscription = await prismaClient.subscription.findUnique({
+    where: { userId: userId },
+    select: { permissions: true },
   });
-
-  if (!user) return res.status(404).json({ error: "User not found" });
 
   const currentDate = new Date();
   const existingPermissions =
-    (user.subscription?.permissions as Record<string, string>) || {};
+    (subscription?.permissions as Record<string, string>) || {};
 
   const currentExpiry = existingPermissions[permission]
     ? new Date(existingPermissions[permission])

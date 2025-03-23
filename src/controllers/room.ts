@@ -18,6 +18,7 @@ export const allRoomDetails = async (
   const categoryDetails = await prismaClient.room.findMany({
     where: {
       city: city,
+      isActive: true,
     },
     // include: {
     // user: {

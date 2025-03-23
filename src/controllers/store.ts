@@ -20,11 +20,12 @@ export const storeDetails = async (
   res: Response,
   next: NextFunction
 ) => {
-  const roomId = req.params.roomId;
+  const storeId = req.params.storeId;
 
-  const roomData = await prismaClient.store.findFirst({
+  const storeData = await prismaClient.store.findFirst({
     where: {
-      id: roomId,
+      isActive: true,
+      id: storeId,
     },
     include: {
       storeReviews: true,
@@ -37,7 +38,7 @@ export const storeDetails = async (
     },
   });
 
-  res.status(200).json(roomData);
+  res.status(200).json(storeData);
 };
 
 /* -----------------------------------------POST---------------------------------------- */

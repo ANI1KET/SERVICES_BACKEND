@@ -67,26 +67,13 @@ export const citiesLocation = async (req: Request, res: Response) => {
 
   const results = await Promise.all(
     models.map(async (model) => {
-      // const cities = await (
-      //   prismaClient[model as ModelName] as { findMany: Function }
-      // ).findMany({
-      //   select: { city: true },
-      //   distinct: ["city"],
-      // });
-
-      // const cityLocations = await (
-      //   prismaClient[model as ModelName] as { findMany: Function }
-      // ).findMany({
-      //   where: { city: city },
-      //   select: { location: true },
-      // });
       const [cities, cityLocations] = await Promise.all([
         (prismaClient[model as ModelName] as { findMany: Function }).findMany({
-          select: { city: true },
+          select: { city: true, isActive: true },
           distinct: ["city"],
         }),
         (prismaClient[model as ModelName] as { findMany: Function }).findMany({
-          where: { city: city },
+          where: { city: city, isActive: true },
           select: { location: true },
         }),
       ]);
@@ -129,7 +116,7 @@ export const cityLocations = async (
   const citiesLocation = await (
     prismaClient[category as ModelName] as { findMany: Function }
   ).findMany({
-    where: { city },
+    where: { city, isActive: true },
     select: { location: true },
   });
 
@@ -160,6 +147,7 @@ export const cityLocationsData = async (
   // };
   const filterQuery = {
     city,
+    isActive: true,
     ...(locations && {
       location: { in: locations as string[] },
       // location: { in: JSON.parse(locations as string) as string[] },

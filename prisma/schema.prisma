@@ -114,6 +114,7 @@ model Room {
 
   @@index([city])
   @@index([userId])
+  @@index([isActive])
   @@map("Rooms")
 }
 
@@ -183,6 +184,7 @@ model Store {
 
   @@index([city])
   @@index([userId])
+  @@index([isActive])
   @@map("Stores")
 }
 
@@ -209,6 +211,7 @@ model Hostel {
   city      String
   direction String?
   location  String
+  isActive  Boolean @default(true)
 }
 
 model Restaurant {
@@ -216,6 +219,7 @@ model Restaurant {
   city      String
   direction String?
   location  String
+  isActive  Boolean @default(true)
 }
 
 model Land {
@@ -223,6 +227,7 @@ model Land {
   city      String
   direction String?
   location  String
+  isActive  Boolean @default(true)
 }
 
 model Repair {
@@ -230,6 +235,7 @@ model Repair {
   city      String
   direction String?
   location  String
+  isActive  Boolean @default(true)
 }
 
 model Rental {
@@ -237,4 +243,5 @@ model Rental {
   city      String
   direction String?
   location  String
+  isActive  Boolean @default(true)
 }
