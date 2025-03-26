@@ -1,13 +1,14 @@
 import { Router } from "express";
 
 import {
-  createRoom,
   bookRoom,
+  createRoom,
   reviewRoom,
+  deleteRoom,
   roomDetails,
   allRoomDetails,
   updateRoomDetails,
-  deleteRoom,
+  multipleRoomDetails,
 } from "../controllers/room.js";
 import { errorHandler } from "../utils/error_handler.js";
 
@@ -18,8 +19,9 @@ roomRoutes.get("/", errorHandler(allRoomDetails));
 roomRoutes.get("/:roomId", errorHandler(roomDetails));
 // POST
 roomRoutes.post("/create", errorHandler(createRoom));
-roomRoutes.post("/:roomId/book", errorHandler(bookRoom));
 roomRoutes.post("/review", errorHandler(reviewRoom));
+roomRoutes.post("/:roomId/book", errorHandler(bookRoom));
+roomRoutes.post("/rooms", errorHandler(multipleRoomDetails));
 // PUT
 roomRoutes.put("/:roomId", errorHandler(updateRoomDetails));
 // DElETE

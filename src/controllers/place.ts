@@ -1,26 +1,13 @@
 import { Request, NextFunction, Response } from "express";
 
 import { prismaClient } from "../app.js";
-// import GeoIPService from "../utils/GeoIPService";
 import { categorySchema, citySchema } from "../schemas/location.js";
-
-// GeoIPService.init()
-//   .then(() => {
-//     console.log("GeoIPService Inittialized");
-//   })
-//   .catch((error) => {
-//     console.error("Error initializing GeoIPService:", error);
-//   });
 
 // function getClientIP(req: Request): string {
 //   const forwarded = req.headers["x-forwarded-for"] as string;
 //   return forwarded
 //     ? forwarded.split(",")[0].trim()
 //     : req.socket.remoteAddress || "";
-// }
-
-// function removeDiacritics(text: string): string {
-//   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 // }
 
 const models = [
@@ -39,31 +26,13 @@ export const citiesLocation = async (req: Request, res: Response) => {
   // const clientIP = getClientIP(req);
   // console.log(clientIP);
 
-  // let cityData, country, city;
-  // try {
-  //   cityData = await GeoIPService.getCityData(clientIP);
-  //   // cityData = await GeoIPService.getCityData("113.199.136.160"); // Ilam
-  //   // cityData = await GeoIPService.getCityData("27.34.104.213"); // Pokhara
-  //   // cityData = await GeoIPService.getCityData("113.199.238.102"); // Dharan
-  //   // cityData = await GeoIPService.getCityData("124.41.204.21"); // Kathmandu
-
-  //   country = cityData?.country?.names.en;
-  //   city = cityData?.city?.names.en
-  //     ? removeDiacritics(cityData.city.names.en)
-  //     : "Kathmandu";
-  // } catch (error) {
   const city = "Kathmandu";
-  //   // console.log(error);
-  // }
-  // console.log(cityData);
 
   // if (country && country !== "Nepal") {
   //   return res
   //     .status(403)
   //     .json({ error: "Service is not available in your country." });
   // }
-  // console.log(country);
-  // console.log(city);
 
   const results = await Promise.all(
     models.map(async (model) => {

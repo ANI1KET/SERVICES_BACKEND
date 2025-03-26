@@ -70,6 +70,43 @@ export const roomDetails = async (
   res.status(200).json(roomData);
 };
 
+export const multipleRoomDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { roomIds } = req.body;
+
+  const roomData = await prismaClient.room.findMany({
+    where: {
+      id: { in: roomIds },
+    },
+    select: {
+      id: true,
+      city: true,
+      name: true,
+      price: true,
+      postedBy: true,
+      roomtype: true,
+      location: true,
+      amenities: true,
+      available: true,
+      direction: true,
+      mincapacity: true,
+      maxcapacity: true,
+      primaryContact: true,
+      furnishingStatus: true,
+      //   reviews: {
+      //     select:{
+      //       rating
+      //     }
+      //   },
+    },
+  });
+
+  res.status(200).json(roomData);
+};
+
 /* -----------------------------------------POST---------------------------------------- */
 export const createRoom = async (
   req: Request,
