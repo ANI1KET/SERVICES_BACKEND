@@ -16,12 +16,21 @@ export const getInterestedRooms = async (
       listerId,
     },
     select: {
+      id: true,
       roomId: true,
       room: {
         select: {
           city: true,
-          name: true,
+          price: true,
           location: true,
+          amenities: true,
+          direction: true,
+          available: true,
+          mincapacity: true,
+          maxcapacity: true,
+          ownerContact: true,
+          primaryContact: true,
+          furnishingStatus: true,
         },
       },
       interestedBy: {
@@ -29,6 +38,7 @@ export const getInterestedRooms = async (
           createdAt: true,
           user: {
             select: {
+              id: true,
               name: true,
               email: true,
               number: true,
