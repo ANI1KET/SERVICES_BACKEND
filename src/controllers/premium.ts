@@ -66,15 +66,7 @@ export const upgradeUser = async (
     ...(permission === "room"
       ? [
           prismaClient.room.updateMany({
-            where: { userId },
-            data: { isActive: true },
-          }),
-        ]
-      : []),
-    ...(permission === "store"
-      ? [
-          prismaClient.store.updateMany({
-            where: { userId },
+            where: { listerId: userId },
             data: { isActive: true },
           }),
         ]

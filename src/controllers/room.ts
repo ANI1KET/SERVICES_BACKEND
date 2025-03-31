@@ -59,7 +59,7 @@ export const roomDetails = async (
     include: {
       reviews: true,
       // user: true,
-      user: {
+      lister: {
         select: {
           role: true,
         },
@@ -140,7 +140,6 @@ export const createRoom = async (
       hall,
       price,
       photos,
-      userId,
       videos,
       bedroom,
       kitchen,
@@ -151,8 +150,9 @@ export const createRoom = async (
       maxcapacity,
       ownerContact,
       primaryContact,
+      listerId: userId,
       furnishingStatus,
-      user: {
+      lister: {
         connect: { id: userId },
       },
     },

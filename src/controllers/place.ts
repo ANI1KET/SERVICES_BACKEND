@@ -10,68 +10,70 @@ import { categorySchema, citySchema } from "../schemas/location.js";
 //     : req.socket.remoteAddress || "";
 // }
 
-const models = [
-  "room",
-  "store",
-  "hostel",
-  "restaurant",
-  "land",
-  "repair",
-  "rental",
-] as const;
-type ModelName = (typeof models)[number];
-
 /* ------------------------------------------GET---------------------------------------- */
 export const citiesLocation = async (req: Request, res: Response) => {
+  const category = categorySchema.parse(req.params.category);
+
   // const clientIP = getClientIP(req);
   // console.log(clientIP);
 
   const city = "Kathmandu";
-
   // if (country && country !== "Nepal") {
   //   return res
   //     .status(403)
   //     .json({ error: "Service is not available in your country." });
   // }
 
-  const results = await Promise.all(
-    models.map(async (model) => {
-      const [cities, cityLocations] = await Promise.all([
-        (prismaClient[model as ModelName] as { findMany: Function }).findMany({
-          select: { city: true, isActive: true },
-          distinct: ["city"],
-        }),
-        (prismaClient[model as ModelName] as { findMany: Function }).findMany({
-          where: { city: city, isActive: true },
-          select: { location: true },
-        }),
-      ]);
+  const [cities, cityLocations] = await Promise.all([
+    (prismaClient[category] as { findMany: Function }).findMany({
+      where: { isActive: true },
+      select: { city: true },
+      distinct: ["city"],
+    }),
+    (prismaClient[category] as { findMany: Function }).findMany({
+      where: { city: city, isActive: true },
+      select: { location: true },
+    }),
+    // prismaClient.room.findMany({
+    //   where: { isActive: true },
+    //   select: { city: true },
+    //   distinct: ["city"],
+    // }),
+    // prismaClient.hostel.findMany({
+    //   where: { city: city, isActive: true },
+    //   select: { location: true },
+    // }),
+    // prismaClient.property.findMany({
+    //   where: { city: city, isActive: true },
+    //   select: { location: true },
+    // }),
+    // prismaClient.reMarketItem.findMany({
+    //   where: { city: city, isActive: true },
+    //   select: { location: true },
+    // }),
+    // // prismaClient.vehicle.findMany({
+    // //   where: { city: city, isActive: true },
+    // //   select: { location: true },
+    // // }),
+  ]);
 
-      const cityData = cities.reduce(
-        (acc: Record<string, string[]>, { city }: { city: string }) => {
-          acc[city] = [];
-          return acc;
-        },
-        {}
-      );
-
-      if (city in cityData) {
-        cityData[city] = cityLocations.map(
-          ({ location }: { location: string }) => location
-        );
-      }
-
-      return {
-        [model]: cityData,
-      };
-    })
-  );
-  const transformedResult = results.reduce(
-    (acc, curr) => ({ ...acc, ...curr }),
+  const cityData = cities.reduce(
+    (acc: Record<string, string[]>, { city }: { city: string }) => {
+      acc[city] = [];
+      return acc;
+    },
     {}
   );
 
-  res.status(200).json({ city: city, ...transformedResult });
+  if (city in cityData) {
+    cityData[city] = cityLocations.map(
+      ({ location }: { location: string }) => location
+    );
+  }
+
+  const result = { [category]: cityData };
+
+  res.status(200).json({ city, ...result });
 };
 
 export const cityLocations = async (
@@ -83,7 +85,7 @@ export const cityLocations = async (
   const city = citySchema.parse(req.query.city);
 
   const citiesLocation = await (
-    prismaClient[category as ModelName] as { findMany: Function }
+    prismaClient[category] as { findMany: Function }
   ).findMany({
     where: { city, isActive: true },
     select: { location: true },
@@ -97,7 +99,6 @@ export const cityLocationsData = async (
   res: Response,
   next: NextFunction
 ) => {
-  const category = categorySchema.parse(req.path.replace(/^\/+/, ""));
   const city = citySchema.parse(req.query.city);
   const locations = req.query.locations ? req.query.locations : undefined;
   const filters = req.query.filters;
@@ -124,9 +125,7 @@ export const cityLocationsData = async (
     ...buildFilters(filters),
   };
 
-  const cityLocation = await (
-    prismaClient[category as ModelName] as { findMany: Function }
-  ).findMany({
+  const cityLocation = await prismaClient.room.findMany({
     where: filterQuery,
     // include: {
     // user: {

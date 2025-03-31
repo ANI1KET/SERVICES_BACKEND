@@ -1,11 +1,12 @@
 import { z } from "zod";
 
 export const categorySchema = z.enum(
-  ["room", "store", "hostel", "restaurant", "land", "repair", "rental"],
+  ["room", "hostel", "property", "reMarketItem"],
+  // ["room", "hostel", "property", "vehicle", "reMarketItem"],
   {
     errorMap: () => ({
       message:
-        'Value should be one of: "room", "store", "hostel", "restaurant", "land", "repair", "rental"',
+        'Value should be one of: "room", "hostel", "property", "reMarketItem"',
     }),
   }
 );
