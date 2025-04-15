@@ -56,15 +56,15 @@ export const roomDetails = async (
     where: {
       id: roomId,
     },
-    include: {
-      reviews: true,
-      // user: true,
-      lister: {
-        select: {
-          role: true,
-        },
-      },
-    },
+    // include: {
+    //   reviews: true,
+    //   // user: true,
+    //   lister: {
+    //     select: {
+    //       role: true,
+    //     },
+    //   },
+    // },
   });
 
   res.status(200).json(roomData);

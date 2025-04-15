@@ -10,6 +10,7 @@ import {
   updateRoomDetails,
   multipleRoomDetails,
 } from "../controllers/room.js";
+import authMiddleware from "../middlewares/auth.js";
 import { errorHandler } from "../utils/error_handler.js";
 
 const roomRoutes: Router = Router();
@@ -18,8 +19,8 @@ const roomRoutes: Router = Router();
 roomRoutes.get("/", errorHandler(allRoomDetails));
 roomRoutes.get("/:roomId", errorHandler(roomDetails));
 // POST
-roomRoutes.post("/create", errorHandler(createRoom));
-roomRoutes.post("/review", errorHandler(reviewRoom));
+roomRoutes.post("/create", authMiddleware, errorHandler(createRoom));
+roomRoutes.post("/review", authMiddleware, errorHandler(reviewRoom));
 roomRoutes.post("/:roomId/book", errorHandler(bookRoom));
 roomRoutes.post("/rooms", errorHandler(multipleRoomDetails));
 // PUT

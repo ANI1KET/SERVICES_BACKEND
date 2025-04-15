@@ -3,10 +3,8 @@ import { hashSync, compareSync } from "bcrypt";
 import { Request, NextFunction, Response } from "express";
 
 import { prismaClient } from "../app.js";
-import { JWT_TOKEN_SECRET } from "../env_variable.js";
 import { ErrorCode } from "../exceptions/errorhandler.js";
-import { NotFoundException } from "../exceptions/not_found.js";
-import { LoginSchema, SignupSchema } from "../schemas/uers.js";
+import { SignupSchema } from "../schemas/uers.js";
 import { BadRequestsException } from "../exceptions/bad_requests.js";
 
 export const signUp = async (
@@ -31,8 +29,8 @@ export const signUp = async (
       number,
       name,
       email,
-      password: hashSync(password, 10),
       role,
+      password: hashSync(password, 10),
     },
   });
 

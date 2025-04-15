@@ -2,7 +2,6 @@ import { User } from "@prisma/client";
 import { getToken } from "next-auth/jwt";
 import { Request, NextFunction, Response } from "express";
 
-import { JWT_TOKEN_SECRET } from "../env_variable.js";
 import { ErrorCode } from "../exceptions/errorhandler.js";
 import { UnauthorizedException } from "../exceptions/unauthorized.js";
 
@@ -16,11 +15,9 @@ const authMiddleware = async (
 
   // if (!accessToken)
   // return res.status(401).json({ message: "Access token is missing" });
-
   try {
     const decodedToken = await getToken({
       req,
-      secret: JWT_TOKEN_SECRET,
     });
 
     if (!decodedToken) {

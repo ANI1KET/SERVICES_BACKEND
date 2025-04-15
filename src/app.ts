@@ -12,6 +12,7 @@ const app: Express = express();
 export const prismaClient = new PrismaClient({
   log: ["query"],
 });
+
 const limiter = rateLimit({
   max: 50,
   windowMs: 10 * 60 * 1000,

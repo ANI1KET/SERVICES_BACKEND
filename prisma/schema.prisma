@@ -23,40 +23,25 @@ enum Role {
 enum Permission {
   room
   hostel
+  promote
   vehicle
   property
   reMarketItem
 }
 
 model Subscription {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  permissions Json     @default("{}")
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  permissions Json   @default("{}")
+
   // RELATIONSHIP
-  userId      String   @unique @db.ObjectId
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique @db.ObjectId
+  user   User   @relation(name: "Subscriber", fields: [userId], references: [id], onDelete: Cascade)
+
   // TIMESTAMPS
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
   @@map("Subscriptions")
-}
-
-// ✅ Explicit Many-to-Many Relation Model
-model InterestedRoomsUsers {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  // RELATIONSHIP
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId           String          @db.ObjectId
-  // RELATIONSHIP
-  interestedRoom   InterestedRooms @relation(fields: [interestedRoomId], references: [id], onDelete: Cascade)
-  interestedRoomId String          @db.ObjectId
-  // TIMESTAMPS
-  createdAt        DateTime        @default(now())
-
-  @@unique([userId, interestedRoomId])
-  @@index([userId])
-  @@index([interestedRoomId])
 }
 
 model InterestedRooms {
@@ -66,24 +51,115 @@ model InterestedRooms {
   // RELATIONSHIP
   roomId       String                 @unique @db.ObjectId
   room         Room                   @relation(fields: [roomId], references: [id], name: "RoomInterested", onDelete: Cascade)
-  // RELATIONSHIP: Many-to-Many with User (explicit relation)
-  interestedBy InterestedRoomsUsers[]
+  // RELATIONSHIP
+  interestedBy InterestedRoomsUsers[] @relation("InterestedRooms")
 
   @@index([listerId])
 }
 
-model User {
-  id              String                 @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  email           String                 @unique
-  image           String?
-  number          String?
-  password        String?
-  // ENUM
-  role            Role                   @default(USER)
-  permission      Permission[]           @default([])
+model InterestedRoomsUsers {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
   // RELATIONSHIP
-  subscription    Subscription?
+  user             User            @relation(name: "InterestedUsers", fields: [userId], references: [id], onDelete: Cascade)
+  userId           String          @db.ObjectId
+  // RELATIONSHIP
+  interestedRoom   InterestedRooms @relation(name: "InterestedRooms", fields: [interestedRoomId], references: [id], onDelete: Cascade)
+  interestedRoomId String          @db.ObjectId
+
+  // TIMESTAMPS
+  createdAt DateTime @default(now())
+
+  @@unique([userId, interestedRoomId])
+  @@index([userId])
+  @@index([interestedRoomId])
+}
+
+model Promoter {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // RELATIONSHIP
+  user           User                 @relation(fields: [userId], references: [id], name: "MyDetails", onDelete: Cascade)
+  userId         String               @unique @db.ObjectId
+  // RELATIONSHIP
+  promotionDeals PromotionAgreement[] @relation("PromoterAgreements")
+}
+
+model PromotionAgreement {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // RELATIONSHIP
+  promoter   Promoter        @relation("PromoterAgreements", fields: [promoterId], references: [id], onDelete: Cascade)
+  promoterId String          @db.ObjectId
+  // RELATIONSHIP
+  lister     User            @relation("ListerAgreements", fields: [listerId], references: [id], onDelete: Cascade)
+  listerId   String          @db.ObjectId
+  // RELATIONSHIP
+  promotions RoomPromotion[] @relation("PromotionRooms")
+
+  @@unique([promoterId, listerId])
+}
+
+model RoomPromotion {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  originalUrl   String
+  shortUrl      String @unique
+  pricePerClick Float
+  totalPrice    Float  @default(0)
+  clicks        Int    @default(0)
+
+  // RELATIONSHIPS
+  agreement   PromotionAgreement @relation(name: "PromotionRooms", fields: [agreementId], references: [id], onDelete: Cascade)
+  agreementId String             @db.ObjectId
+  // RELATIONSHIPS
+  room        Room               @relation(name: "PromotedRooms", fields: [roomId], references: [id], onDelete: Cascade)
+  roomId      String             @db.ObjectId
+  // RELATIONSHIPS
+  clickEvents UserClick[]        @relation("UsersClick")
+
+  // TIMESTAMPS
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model UserClick {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  ip         String
+  deviceType String
+
+  // RELATIONSHIP
+  roomPromotion   RoomPromotion @relation(name: "UsersClick", fields: [roomPromotionId], references: [id], onDelete: Cascade)
+  roomPromotionId String        @db.ObjectId
+
+  // TIMESTAMPS
+  timestamp DateTime @default(now())
+
+  @@index([roomPromotionId])
+  @@index([timestamp])
+  @@map("ClickEvents")
+}
+
+model User {
+  id               String  @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  email            String  @unique
+  image            String?
+  number           String?
+  password         String?
+  toPromote        Boolean @default(false)
+  promoteRoomPrice Int?
+
+  // ENUM
+  role       Role         @default(ADMIN)
+  permission Permission[] @default([])
+
+  // RELATIONSHIP
+  subscription    Subscription?          @relation(name: "Subscriber")
+  // RELATIONSHIP
+  promoter        Promoter?              @relation("MyDetails")
+  // RELATIONSHIP
+  promotionDeals  PromotionAgreement[]   @relation("ListerAgreements")
   // RELATIONSHIP
   rooms           Room[]                 @relation("UserRooms")
   roomReviews     RoomReview[]           @relation("UserRoomReviews")
@@ -91,16 +167,17 @@ model User {
   hostels         Hostel[]               @relation("UserHostels")
   hostelReviews   HostelReview[]         @relation("UserHostelReviews")
   // RELATIONSHIP
-  porperties      Property[]             @relation("UserPorperties")
+  properties      Property[]             @relation("UserPorperties")
   // RELATIONSHIP
   vehicles        Vehicle[]              @relation("UserVehicles")
   // RELATIONSHIP
   reMarketItems   ReMarketItem[]         @relation("UserReMarketItems")
-  // RELATIONSHIP: Many-to-Many with InterestedRooms (explicit relation)
-  interestedRooms InterestedRoomsUsers[]
+  // RELATIONSHIP
+  interestedRooms InterestedRoomsUsers[] @relation("InterestedUsers")
+
   // TIMESTAMPS
-  createdAt       DateTime               @default(now())
-  updatedAt       DateTime               @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([role])
   @@index([permission])
@@ -115,41 +192,46 @@ enum FurnishingStatusEnum {
 }
 
 model Room {
-  id               String               @id @default(auto()) @map("_id") @db.ObjectId
-  mincapacity      Int
-  maxcapacity      Int
-  price            Float
-  name             String
-  ownerContact     String
-  primaryContact   String
-  city             String
-  location         String
-  direction        String?
-  videos           String?
-  photos           String[]
-  ratings          Float                @default(0)
-  available        Boolean              @default(true)
-  postedBy         Role                 @default(USER)
-  verified         Boolean              @default(false)
-  bedroom          Int
-  hall             Int
-  kitchen          Int
-  bathroom         Int
-  roomtype         String
-  amenities        String[]             @default([])
-  isActive         Boolean              @default(true)
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  hall           Int
+  kitchen        Int
+  bedroom        Int
+  bathroom       Int
+  mincapacity    Int
+  maxcapacity    Int
+  price          Float
+  ratings        Float    @default(0)
+  name           String
+  city           String
+  location       String
+  roomtype       String
+  ownerContact   String
+  primaryContact String
+  available      Boolean  @default(true)
+  verified       Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  direction      String?
+  videos         String?
+  photos         String[]
+  amenities      String[] @default([])
+
   // ENUM
+  postedBy         Role                 @default(ADMIN)
   furnishingStatus FurnishingStatusEnum
+
   // RELATIONSHIP
-  reviews          RoomReview[]         @relation("RoomReviews")
+  reviews        RoomReview[]     @relation("RoomReviews")
   // RELATIONSHIP
-  lister           User                 @relation(fields: [listerId], references: [id], name: "UserRooms", onDelete: Cascade)
-  listerId         String               @db.ObjectId
+  lister         User             @relation(fields: [listerId], references: [id], name: "UserRooms", onDelete: Cascade)
+  listerId       String           @db.ObjectId
   // RELATIONSHIP
-  interestedRoom   InterestedRooms?     @relation(name: "RoomInterested")
-  // 
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
+  interestedRoom InterestedRooms? @relation(name: "RoomInterested")
+  // RELATIONSHIP
+  roomPromotions RoomPromotion[]  @relation("PromotedRooms")
+
+  // TIMESTAMPS
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([city])
   @@index([listerId])
@@ -158,61 +240,76 @@ model Room {
 }
 
 model RoomReview {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  rating    Float
-  comment   String
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  rating  Float
+  comment String
+
   // RELATIONSHIP 
-  user      User     @relation(fields: [userId], references: [id], name: "UserRoomReviews", onDelete: Cascade)
-  userId    String   @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], name: "UserRoomReviews", onDelete: Cascade)
+  userId String @db.ObjectId
   // RELATIONSHIP 
-  room      Room     @relation(fields: [roomId], references: [id], name: "RoomReviews", onDelete: Cascade)
-  roomId    String   @db.ObjectId
-  // 
+  room   Room   @relation(fields: [roomId], references: [id], name: "RoomReviews", onDelete: Cascade)
+  roomId String @db.ObjectId
+
+  // TIMESTAMPS
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
-  // @@index([roomId])
   @@map("Room_Reviews")
 }
 
 model Hostel {
-  id             String         @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  city           String
-  location       String
-  totalRooms     Int?
-  availableRooms Int?
-  price          Float?
-  direction      String?
-  contact        String?
-  amenities      String[]
-  roomTypes      String[]
-  images         String[]
-  isActive       Boolean        @default(true)
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  city             String
+  location         String
+  contact          String
+  hostelType       String // "PG", "Dormitory", "Shared", "Private", "Boys PG", "Girls PG"
+  availableFor     Int      @default(0)
+  availableRooms   Int      @default(0)
+  price            Float
+  ratings          Float    @default(0.0) // Average rating from reviews
+  deposit          Float? // Security deposit amount
+  direction        String?
+  videos           String?
+  amenities        String[] // WiFi, AC, Geyser, etc.
+  roomTypes        String[] // "Single", "Double", "Triple Sharing"
+  services         String[] // Laundry, housekeeping, food, etc.
+  securityFeatures String[] // CCTV, biometric access, security guard
+  nearbyFacilities String[] // Hospitals, markets, transport, gym, etc.
+  images           String[]
+  isActive         Boolean  @default(true)
+
+  // ENUM
+  postedBy Role @default(ADMIN)
+
   // RELATIONSHIP
-  reviews        HostelReview[] @relation("HostelReviews")
+  reviews  HostelReview[] @relation("HostelReviews")
   // RELATIONSHIP
-  lister         User           @relation(fields: [listerId], references: [id], name: "UserHostels", onDelete: Cascade)
-  listerId       String         @db.ObjectId
-  // 
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  lister   User           @relation(fields: [listerId], references: [id], name: "UserHostels", onDelete: Cascade)
+  listerId String         @db.ObjectId
+
+  // TIMESTAMPS
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("Hostels")
 }
 
 model HostelReview {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  rating    Float
-  comment   String
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  rating  Float
+  comment String
+
   // RELATIONSHIP
-  user      User     @relation(fields: [userId], references: [id], name: "UserHostelReviews", onDelete: Cascade)
-  userId    String   @db.ObjectId
+  user     User   @relation(fields: [userId], references: [id], name: "UserHostelReviews", onDelete: Cascade)
+  userId   String @db.ObjectId
   // RELATIONSHIP 
-  hostel    Hostel   @relation(fields: [hostelId], references: [id], name: "HostelReviews", onDelete: Cascade)
-  hostelId  String   @db.ObjectId
-  // 
+  hostel   Hostel @relation(fields: [hostelId], references: [id], name: "HostelReviews", onDelete: Cascade)
+  hostelId String @db.ObjectId
+
+  // TIMESTAMPS
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -227,20 +324,28 @@ model Property {
   city         String
   location     String
   direction    String?
-  size         Float? // Size in square meters or feet
-  price        Float
-  propertyType String // Apartment, House, Land, etc.
-  bedrooms     Int?
-  bathrooms    Int?
+  propertyType String // "Apartment", "House", "Land", "Commercial"
+  listingType  String // "Sale", "Rent"
+  area         Float? // Size in square meters or feet
+  bedrooms     Int? // Optional for land
+  bathrooms    Int? // Optional for land
   furnished    Boolean?
+  amenities    String[] // Parking, Lift, Security, etc. (optional for land)
+  price        Float
+  videos       String?
   images       String[]
   isActive     Boolean  @default(true)
+
+  // ENUM
+  postedBy Role @default(ADMIN)
+
   // RELATIONSHIP 
-  seller       User     @relation(fields: [sellerId], references: [id], name: "UserPorperties", onDelete: Cascade)
-  sellerId     String   @db.ObjectId
-  // 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  seller   User   @relation(fields: [sellerId], references: [id], name: "UserPorperties", onDelete: Cascade)
+  sellerId String @db.ObjectId
+
+  // TIMESTAMPS
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("Properties")
 }
@@ -251,49 +356,64 @@ enum Transmission {
 }
 
 model Vehicle {
-  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   model           String
-  numberPlate     String       @unique
+  numberPlate     String   @unique
   color           String?
   year            Int?
   mileage         Float?
   fuelType        String?
   seatingCapacity Int?
   price           Float?
+  videos          String?
   images          String[]
   condition       String?
-  isActive        Boolean      @default(true)
+  available       Boolean  @default(true)
+  isActive        Boolean  @default(true)
+
   // ENUM
-  transmission    Transmission
+  postedBy     Role         @default(ADMIN)
+  transmission Transmission
+
   // RELATIONSHIP 
-  seller          User         @relation(fields: [sellerId], references: [id], name: "UserVehicles", onDelete: Cascade)
-  sellerId        String       @db.ObjectId
+  seller   User   @relation(fields: [sellerId], references: [id], name: "UserVehicles", onDelete: Cascade)
+  sellerId String @db.ObjectId
+
   // TIMESTAMPS
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("Vehicles")
 }
 
 model ReMarketItem {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  city        String
-  location    String
-  description String?
-  price       Float
-  condition   String // Like New, Sale, Refurbished, UsedItem, etc.
-  category    String // Electronics, Furniture, Clothing, etc.
-  images      String[]
-  purchasedAt DateTime?
-  isActive    Boolean   @default(true)
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  description    String
+  category       String // "Electronics", "Furniture", "Clothing", "Vehicles", etc.
+  subCategory    String? // More specific type like "Laptop", "Smartphone", etc.
+  condition      String // "New", "Used", "Refurbished", "Like New"
+  price          Float
+  isNegotiable   Boolean
+  city           String
+  location       String // City/Area where the item is listed
+  ageInMonths    Int? // How old the item is (for Used/Refurbished items)
+  quantity       Int
+  warrantyPeriod Int? // Warranty duration in months (if available)
+  postedBy       Role     @default(ADMIN)
+  videos         String?
+  images         String[]
+  isActive       Boolean  @default(true)
+  available      Boolean  @default(true)
+
   // RELATIONSHIP 
-  seller      User      @relation(fields: [sellerId], references: [id], name: "UserReMarketItems", onDelete: Cascade)
-  sellerId    String    @db.ObjectId
+  seller   User   @relation(fields: [sellerId], references: [id], name: "UserReMarketItems", onDelete: Cascade)
+  sellerId String @db.ObjectId
+
   // TIMESTAMPS
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("ReMarketItems")
 }

@@ -21,3 +21,11 @@ export const LoginSchema = z.object({
   email: z.string().email("Invalid email address").min(1, "Email is required"),
   password: z.string().min(1, "Password is required"),
 });
+
+export const UpdateNumberSchema = z.object({
+  userId: z.string().length(24),
+  number: z
+    .string()
+    .length(10, "Number must be exactly 10 digits long")
+    .regex(/^\d+$/, "Number must contain only digits"),
+});
